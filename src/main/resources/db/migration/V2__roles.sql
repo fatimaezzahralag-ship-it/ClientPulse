@@ -1,0 +1,6 @@
+INSERT INTO roles (nom) VALUES
+('ADMIN'),
+('MANAGER'),
+('COMMERCIAL'),
+('COMPTABLE'),
+('ANALYSTE');
