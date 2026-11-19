@@ -4,15 +4,13 @@ import lombok.RequiredArgsConstructor;
 import ma.ensam.clientpulse.dao.interfaces.DevisDao;
 import ma.ensam.clientpulse.dao.jpa.DevisJpaRepository;
 import ma.ensam.clientpulse.domain.entity.Devis;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Implémentation de DevisDao. Elle ne fait que passer la main au repository Spring Data.
- * @RequiredArgsConstructor (Lombok) crée le constructeur : Spring injecte le repository tout seul (IoC).
- */
 @Repository
 @RequiredArgsConstructor
 public class DevisDaoImpl implements DevisDao {
@@ -42,6 +40,11 @@ public class DevisDaoImpl implements DevisDao {
     @Override
     public List<Devis> findAll() {
         return jpa.findAll();
+    }
+
+    @Override
+    public Page<Devis> findAll(Pageable pageable) {
+        return jpa.findAll(pageable);
     }
 
     @Override
