@@ -103,3 +103,15 @@ CREATE DATABASE clientpulse CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
 Flyway rejoue alors V1 puis V2 au démarrage suivant.
+
+## 6. Vérifier le socle de persistance
+
+Le script [`docs/sql/verifications-p3.sql`](sql/verifications-p3.sql) contient les
+requêtes de contrôle : migrations appliquées, présence des 12 tables, contraintes,
+index, colonnes de `clients`, rôles, comptes de démonstration. Il s'exécute tel
+quel dans phpMyAdmin (onglet SQL) ou en ligne de commande :
+
+```bash
+mysql -u root clientpulse < docs/sql/verifications-p3.sql
+```
+
