@@ -3,6 +3,7 @@ package ma.ensam.clientpulse.presentation.controller;
 import jakarta.validation.Valid;
 
 import ma.ensam.clientpulse.dto.UtilisateurDto;
+import ma.ensam.clientpulse.dto.UtilisateurModificationRequest;
 import ma.ensam.clientpulse.dto.UtilisateurRequest;
 import ma.ensam.clientpulse.service.interfaces.UtilisateurService;
 
@@ -43,6 +44,21 @@ public class UtilisateurController {
         return ResponseEntity
             .status(HttpStatus.CREATED)
             .body(utilisateurService.create(request));
+    }
+
+    @GetMapping("/roles")
+    public ResponseEntity<List<String>> rolesDisponibles() {
+        return ResponseEntity.ok(utilisateurService.rolesDisponibles());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UtilisateurDto> modifier(
+            @PathVariable Long id,
+            @Valid @RequestBody UtilisateurModificationRequest request) {
+
+        return ResponseEntity.ok(
+            utilisateurService.modifier(id, request)
+        );
     }
 
     @PatchMapping("/{id}/deactivate")

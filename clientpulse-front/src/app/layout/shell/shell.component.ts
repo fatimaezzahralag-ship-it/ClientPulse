@@ -24,6 +24,26 @@ export class ShellComponent {
     return `${prenom}${nom}`.toUpperCase();
   });
 
+  private readonly roles = computed(
+    () => this.auth.utilisateur()?.roles ?? []
+  );
+
+  protected readonly peutVoirAnalytics = computed(() =>
+    this.roles().some((role) =>
+      ['ADMIN', 'MANAGER', 'ANALYSTE'].includes(role)
+    )
+  );
+
+  protected readonly peutVoirRelances = computed(() =>
+    this.roles().some((role) =>
+      ['ADMIN', 'MANAGER', 'COMMERCIAL'].includes(role)
+    )
+  );
+
+  protected readonly peutVoirUtilisateurs = computed(() =>
+    this.roles().includes('ADMIN')
+  );
+
   protected deconnexion(): void {
     this.auth.deconnexion();
     void this.router.navigate(['/login']);

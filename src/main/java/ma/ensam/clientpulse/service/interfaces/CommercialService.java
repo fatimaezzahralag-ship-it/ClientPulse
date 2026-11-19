@@ -7,4 +7,7 @@ import java.util.List;
 public interface CommercialService {
 
     List<CommercialDto> findAll();
+
+    /** Identifiant du profil commercial associé à un email, null si aucun. */
+    Long findIdByUtilisateurEmail(String email);
 }

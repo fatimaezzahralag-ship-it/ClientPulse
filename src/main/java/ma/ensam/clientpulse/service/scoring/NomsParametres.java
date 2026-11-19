@@ -42,6 +42,20 @@ public final class NomsParametres {
     public static final String SEUIL_RETARD_FAIBLE = "SEUIL_RETARD_FAIBLE";
     public static final String SEUIL_RETARD_MOYEN = "SEUIL_RETARD_MOYEN";
 
+    // Seuils RFM (J4). R et les durées sont en jours, F en nombre d'achats
+    // sur 12 mois, M en dirhams. Voir la migration V5 pour les valeurs par
+    // défaut et l'ordre d'évaluation des segments.
+    public static final String RFM_RECENCE_CHAMPION = "RFM_RECENCE_CHAMPION";
+    public static final String RFM_RECENCE_LOYAL = "RFM_RECENCE_LOYAL";
+    public static final String RFM_FREQUENCE_CHAMPION = "RFM_FREQUENCE_CHAMPION";
+    public static final String RFM_FREQUENCE_LOYAL = "RFM_FREQUENCE_LOYAL";
+    public static final String RFM_MONETAIRE_CHAMPION = "RFM_MONETAIRE_CHAMPION";
+    public static final String RFM_MONETAIRE_LOYAL = "RFM_MONETAIRE_LOYAL";
+    public static final String RFM_NOUVEAU_JOURS = "RFM_NOUVEAU_JOURS";
+    public static final String RFM_HIBERNATION_JOURS =
+            "RFM_HIBERNATION_JOURS";
+    public static final String RFM_PERDU_JOURS = "RFM_PERDU_JOURS";
+
     private NomsParametres() {
     }
 }

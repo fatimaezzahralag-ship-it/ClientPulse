@@ -14,9 +14,39 @@
         routerLink="/clients"
         routerLinkActive="active"
         class="nav-link">
-        <span class="nav-icon" aria-hidden="true">◫</span>
+        <span class="nav-icon" aria-hidden="true">◉</span>
         Clients
       </a>
+
+      @if (peutVoirAnalytics()) {
+        <a
+          routerLink="/analytics"
+          routerLinkActive="active"
+          class="nav-link">
+          <span class="nav-icon" aria-hidden="true">▦</span>
+          Analytics
+        </a>
+      }
+
+      @if (peutVoirRelances()) {
+        <a
+          routerLink="/relances"
+          routerLinkActive="active"
+          class="nav-link">
+          <span class="nav-icon" aria-hidden="true">↻</span>
+          Relances
+        </a>
+      }
+
+      @if (peutVoirUtilisateurs()) {
+        <a
+          routerLink="/utilisateurs"
+          routerLinkActive="active"
+          class="nav-link">
+          <span class="nav-icon" aria-hidden="true">◍</span>
+          Utilisateurs
+        </a>
+      }
     </nav>
 
     <div class="sidebar-foot">Gestion de la relation client</div>
@@ -24,7 +54,7 @@
 
   <div class="main">
     <header class="topbar">
-      <span class="breadcrumb">Espace commercial</span>
+      <span class="breadcrumb">Espace {{ auth.rolePrincipal() || 'commercial' }}</span>
 
       <div class="user">
         <span class="avatar">{{ initiales() }}</span>

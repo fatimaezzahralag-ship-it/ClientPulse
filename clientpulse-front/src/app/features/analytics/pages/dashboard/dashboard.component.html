@@ -1,0 +1,151 @@
+<div class="page-head">
+  <div>
+    <h1>Tableau de bord analytique</h1>
+    <p class="muted">
+      Segmentation RFM, niveaux de risque et pilotage des relances commerciales.
+    </p>
+  </div>
+  <div class="head-actions">
+    @if (peutRecalculer()) {
+      <button
+        type="button"
+        class="btn btn-primary"
+        (click)="recalculer()"
+        [disabled]="recalculEnCours()">
+        @if (recalculEnCours()) {
+          <span class="spinner"></span>
+          Recalcul en cours…
+        } @else {
+          Recalculer les scores
+        }
+      </button>
+    }
+    <a class="btn btn-secondary" routerLink="/analytics/clients-a-relancer">
+      Clients à relancer
+    </a>
+  </div>
+</div>
+
+@if (erreur()) {
+  <div class="alert alert-error">{{ erreur() }}</div>
+}
+@if (message()) {
+  <div class="alert alert-success">{{ message() }}</div>
+}
+
+@if (chargement()) {
+  <div class="card etat">
+    <span class="spinner"></span>
+    Chargement des indicateurs…
+  </div>
+} @else if (dashboard(); as donnees) {
+
+  <section class="kpis">
+    <article class="card kpi">
+      <span class="kpi-label">Clients évalués</span>
+      <strong class="kpi-valeur">{{ donnees.clientsEvalues | number }}</strong>
+      <span class="kpi-note">Dernier score connu par client</span>
+    </article>
+    <article class="card kpi kpi-alerte">
+      <span class="kpi-label">Clients à risque</span>
+      <strong class="kpi-valeur">{{ donnees.clientsARisque | number }}</strong>
+      <span class="kpi-note">Niveaux élevé et critique</span>
+    </article>
+    <article class="card kpi">
+      <span class="kpi-label">Part à risque</span>
+      <strong class="kpi-valeur">{{ pourcentageARisque() }} %</strong>
+      <span class="kpi-note">Sur l’ensemble des clients évalués</span>
+    </article>
+  </section>
+
+  <div class="grille">
+    <section class="card">
+      <div class="card-header">
+        <h2>Répartition par niveau de risque</h2>
+        <span class="muted">{{ totalNiveaux() }} client(s)</span>
+      </div>
+      <div class="card-body">
+        @for (item of niveaux(); track item.nom) {
+          <div class="ligne">
+            <span class="ligne-libelle">{{ item.libelle }}</span>
+            <div class="piste">
+              <div
+                [class]="classeNiveau(item.nom)"
+                [style.width.%]="largeur(item.valeur, totalNiveaux())"></div>
+            </div>
+            <strong class="ligne-valeur">{{ item.valeur }}</strong>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <h2>Segments RFM</h2>
+        <span class="muted">{{ totalSegments() }} client(s)</span>
+      </div>
+      <div class="card-body">
+        @for (item of segments(); track item.nom) {
+          <div class="ligne">
+            <span class="ligne-libelle">{{ item.libelle }}</span>
+            <div class="piste">
+              <div
+                [class]="classeSegment(item.nom)"
+                [style.width.%]="largeur(item.valeur, totalSegments())"></div>
+            </div>
+            <strong class="ligne-valeur">{{ item.valeur }}</strong>
+          </div>
+        }
+      </div>
+    </section>
+  </div>
+
+} @else {
+  <div class="card etat">
+    <strong>Aucun indicateur disponible.</strong>
+    <span class="muted">Lancez un premier recalcul pour alimenter le tableau de bord.</span>
+  </div>
+}
+
+<section class="card">
+  <div class="card-header">
+    <h2>Paramètres du moteur</h2>
+    <span class="muted">
+      {{ estAdmin() ? 'Modification réservée aux administrateurs' : 'Lecture seule' }}
+    </span>
+  </div>
+  <div class="card-body">
+    @if (chargementParametres()) {
+      <div class="etat"><span class="spinner"></span> Chargement des paramètres…</div>
+    } @else {
+      <div class="parametres">
+        @for (parametre of parametres(); track parametre.id) {
+          <div class="parametre">
+            <label [for]="'parametre-' + parametre.id">{{ parametre.nom }}</label>
+            <div class="parametre-controle">
+              <input
+                [id]="'parametre-' + parametre.id"
+                type="number"
+                step="0.0001"
+                min="0"
+                [value]="editions()[parametre.id]"
+                [disabled]="!estAdmin() || parametreEnCours() === parametre.id"
+                (change)="majEdition(parametre.id, $any($event.target).value)" />
+              @if (estAdmin()) {
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-sm"
+                  (click)="enregistrerParametre(parametre)"
+                  [disabled]="parametreEnCours() === parametre.id">
+                  Enregistrer
+                </button>
+              }
+            </div>
+          </div>
+        } @empty {
+          <p class="muted">Aucun paramètre disponible.</p>
+        }
+      </div>
+    }
+  </div>
+</section>

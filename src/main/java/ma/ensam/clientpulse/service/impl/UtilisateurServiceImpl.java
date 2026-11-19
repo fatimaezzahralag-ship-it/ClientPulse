@@ -4,7 +4,9 @@ import ma.ensam.clientpulse.dao.interfaces.RoleDao;
 import ma.ensam.clientpulse.dao.interfaces.UtilisateurDao;
 import ma.ensam.clientpulse.domain.entity.Role;
 import ma.ensam.clientpulse.domain.entity.Utilisateur;
+import ma.ensam.clientpulse.domain.enums.RoleNom;
 import ma.ensam.clientpulse.dto.UtilisateurDto;
+import ma.ensam.clientpulse.dto.UtilisateurModificationRequest;
 import ma.ensam.clientpulse.dto.UtilisateurRequest;
 import ma.ensam.clientpulse.exception.DoublonException;
 import ma.ensam.clientpulse.exception.RessourceIntrouvableException;
@@ -98,6 +100,63 @@ public class UtilisateurServiceImpl implements UtilisateurService {
         return utilisateurMapper.toDto(
             utilisateurDao.save(utilisateur)
         );
+    }
+
+    @Override
+    public UtilisateurDto modifier(
+            Long id, UtilisateurModificationRequest request) {
+
+        Utilisateur utilisateur = utilisateurDao.findById(id)
+            .orElseThrow(() ->
+                new RessourceIntrouvableException(
+                    "Utilisateur introuvable : " + id
+                )
+            );
+
+        String email = request.email().trim().toLowerCase();
+
+        boolean emailPris = utilisateurDao.existsByEmail(email)
+            && !email.equalsIgnoreCase(utilisateur.getEmail());
+        if (emailPris) {
+            throw new DoublonException(
+                "Un utilisateur avec cet email existe déjà"
+            );
+        }
+
+        Set<Role> roles = request.roles()
+            .stream()
+            .map(roleNom -> roleDao.findByNom(roleNom)
+                .orElseThrow(() ->
+                    new RessourceIntrouvableException(
+                        "Rôle introuvable : " + roleNom
+                    )
+                )
+            )
+            .collect(Collectors.toSet());
+
+        utilisateur.setNom(request.nom());
+        utilisateur.setPrenom(request.prenom());
+        utilisateur.setEmail(email);
+        utilisateur.setRoles(roles);
+
+        if (request.motDePasse() != null
+            && !request.motDePasse().isBlank()) {
+            utilisateur.setMotDePasse(
+                passwordEncoder.encode(request.motDePasse())
+            );
+        }
+
+        return utilisateurMapper.toDto(
+            utilisateurDao.save(utilisateur)
+        );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<String> rolesDisponibles() {
+        return java.util.Arrays.stream(RoleNom.values())
+            .map(Enum::name)
+            .toList();
     }
 
     @Override

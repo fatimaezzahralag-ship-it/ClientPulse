@@ -2,6 +2,7 @@ package ma.ensam.clientpulse.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -66,8 +67,29 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers("/api/utilisateurs/**")
                         .hasRole("ADMIN")
+
+                        // Modification des paramètres : ADMIN uniquement.
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/api/parametres",
+                                "/api/parametres/**"
+                        ).hasRole("ADMIN")
+
+                        // Recalcul manuel : ADMIN et MANAGER seulement.
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/analytics/recalculer"
+                        ).hasAnyRole("ADMIN", "MANAGER")
+
                         .requestMatchers("/api/analytics/**")
                         .hasAnyRole("ADMIN", "MANAGER", "ANALYSTE")
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/parametres",
+                                "/api/parametres/**"
+                        ).hasAnyRole("ADMIN", "MANAGER", "ANALYSTE")
+
+                        // Les relances restent accessibles aux COMMERCIAUX.
                         .anyRequest().authenticated()
                 )
 

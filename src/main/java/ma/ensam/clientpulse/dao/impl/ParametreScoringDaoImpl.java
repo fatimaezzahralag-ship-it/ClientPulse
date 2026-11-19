@@ -25,6 +25,11 @@ public class ParametreScoringDaoImpl implements ParametreScoringDao {
     }
 
     @Override
+    public Optional<ParametreScoring> findById(Long id) {
+        return repository.findById(id);
+    }
+
+    @Override
     public List<ParametreScoring> findAll() {
         return repository.findAllByOrderByNomAsc();
     }
