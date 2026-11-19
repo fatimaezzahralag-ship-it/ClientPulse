@@ -6,6 +6,7 @@ import ma.ensam.clientpulse.domain.entity.Commercial;
 
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -20,6 +21,11 @@ public class CommercialDaoImpl implements CommercialDao {
     @Override
     public Commercial save(Commercial commercial) {
         return repository.save(commercial);
+    }
+
+    @Override
+    public List<Commercial> findAll() {
+        return repository.findAll();
     }
 
     @Override
