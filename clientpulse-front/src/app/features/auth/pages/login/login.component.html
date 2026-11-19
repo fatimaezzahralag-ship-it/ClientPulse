@@ -1,0 +1,80 @@
+<div class="auth-page">
+
+  <section class="auth-presentation">
+    <div class="brand">
+      <span class="brand-mark">CP</span>
+      <span>
+        <strong>ClientPulse</strong>
+        <small>Gestion de la relation client</small>
+      </span>
+    </div>
+
+    <div class="pitch">
+      <h1>Pilotez vos clients,<br />anticipez les risques.</h1>
+      <p>
+        Centralisez les fiches clients, suivez les interactions et identifiez
+        les comptes qui décrochent grâce au score de churn.
+      </p>
+
+      <ul>
+        <li>Fiches clients et historique des interactions</li>
+        <li>Scoring de risque explicable</li>
+        <li>Suivi des commerciaux</li>
+      </ul>
+    </div>
+
+    <span class="version">ClientPulse · ENSAM</span>
+  </section>
+
+  <section class="auth-form">
+    <form [formGroup]="formulaire" (ngSubmit)="soumettre()">
+      <h2>Connexion</h2>
+      <p class="muted">Accédez à votre espace commercial.</p>
+
+      <div class="field">
+        <label for="email">Adresse e-mail <span class="required">*</span></label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          autocomplete="username"
+          placeholder="vous@clientpulse.ma" />
+        @if (formulaire.controls.email.touched && formulaire.controls.email.invalid) {
+          <span class="error">Une adresse e-mail valide est requise.</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="motDePasse">Mot de passe <span class="required">*</span></label>
+        <input
+          id="motDePasse"
+          type="password"
+          formControlName="motDePasse"
+          autocomplete="current-password"
+          placeholder="••••••••" />
+        @if (formulaire.controls.motDePasse.touched && formulaire.controls.motDePasse.invalid) {
+          <span class="error">Le mot de passe est requis.</span>
+        }
+      </div>
+
+      @if (erreur) {
+        <div class="alert alert-error">{{ erreur }}</div>
+      }
+
+      <button type="submit" class="btn btn-primary" [disabled]="chargement">
+        @if (chargement) {
+          <span class="spinner"></span>
+          Connexion…
+        } @else {
+          Se connecter
+        }
+      </button>
+
+      <div class="demo">
+        <strong>Compte de démonstration</strong>
+        <span>admin&#64;clientpulse.ma · Admin&#64;12345</span>
+        <span>commercial&#64;clientpulse.ma · Commercial&#64;12345</span>
+      </div>
+    </form>
+  </section>
+</div>

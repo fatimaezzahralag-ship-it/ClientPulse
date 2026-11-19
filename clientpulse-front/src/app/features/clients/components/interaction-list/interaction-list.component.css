@@ -1,0 +1,151 @@
+:host {
+  display: block;
+}
+
+.card-header {
+  flex-wrap: wrap;
+}
+
+.card-header h2 {
+  font-size: 16px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.alert {
+  margin-bottom: 14px;
+}
+
+/* ------------------------------------------------------------------- ajout */
+.ajout {
+  margin-bottom: 18px;
+  padding: 16px;
+  border: 1px solid var(--cp-primary-light);
+  border-radius: 10px;
+  background: #f8fbff;
+}
+
+.ajout-titre {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.ajout-titre h3 {
+  font-size: 14px;
+}
+
+.ajout-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 72px;
+}
+
+/* ------------------------------------------------------------------- table */
+.table-scroll {
+  overflow-x: auto;
+}
+
+.date {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--cp-slate-700);
+  font-size: 13px;
+}
+
+.resume {
+  max-width: 420px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--cp-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.resume:hover {
+  color: var(--cp-primary);
+}
+
+.chevron {
+  margin-left: 6px;
+  color: var(--cp-slate-400);
+  font-size: 11px;
+}
+
+.detail {
+  max-width: 420px;
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-left: 3px solid var(--cp-primary-light);
+  background: var(--cp-slate-50);
+  border-radius: 0 6px 6px 0;
+  font-size: 13px;
+}
+
+.detail span {
+  font-size: 11px;
+}
+
+.detail p {
+  margin: 4px 0 0;
+  white-space: pre-wrap;
+}
+
+.statut-select {
+  border: 0;
+  padding: 4px 8px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.statut-select:focus {
+  outline: 2px solid var(--cp-primary);
+  outline-offset: 1px;
+}
+
+/* --------------------------------------------------------------- pagination */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 4px 0;
+  border-top: 1px solid var(--cp-slate-100);
+  font-size: 13px;
+}
+
+.pagination-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.page-indicator {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cp-slate-700);
+}
+
+.etat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 30px 20px;
+  color: var(--cp-slate-500);
+  text-align: center;
+}

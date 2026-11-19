@@ -1,0 +1,153 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.page-head h1 {
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+
+.page-head p {
+  margin: 0;
+  font-size: 13px;
+}
+
+/* ------------------------------------------------------------------ filtres */
+.filters {
+  padding: 16px 18px;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1.2fr auto;
+  gap: 12px 14px;
+  align-items: end;
+}
+
+.filters-actions {
+  display: flex;
+  align-items: flex-end;
+}
+
+.filters .field label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--cp-slate-500);
+}
+
+.filters .field input,
+.filters .field select {
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+/* ------------------------------------------------------------------- table */
+.table-card {
+  overflow: hidden;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.code {
+  font-family: "Consolas", "SFMono-Regular", monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cp-primary-dark);
+  background: var(--cp-primary-light);
+  padding: 2px 7px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.raison {
+  display: block;
+  font-weight: 600;
+  color: var(--cp-text);
+}
+
+.raison:hover {
+  color: var(--cp-primary);
+}
+
+.sous-titre {
+  display: block;
+  font-size: 12px;
+  color: var(--cp-slate-500);
+}
+
+.ice {
+  font-family: "Consolas", "SFMono-Regular", monospace;
+  font-size: 12px;
+  color: var(--cp-slate-700);
+  white-space: nowrap;
+}
+
+.th-actions {
+  text-align: right;
+}
+
+/* --------------------------------------------------------------- pagination */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--cp-slate-200);
+  background: var(--cp-slate-50);
+  font-size: 13px;
+}
+
+.pagination-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.page-indicator {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cp-slate-700);
+}
+
+/* -------------------------------------------------------------------- états */
+.etat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 56px 20px;
+  color: var(--cp-slate-500);
+}
+
+@media (max-width: 1180px) {
+  .filters-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .filters-actions {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 760px) {
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-head {
+    flex-direction: column;
+  }
+}

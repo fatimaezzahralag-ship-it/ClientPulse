@@ -1,0 +1,171 @@
+<div class="page-head">
+  <div>
+    <h1>Clients</h1>
+    <p class="muted">
+      @if (totalElements() > 0) {
+        {{ totalElements() }} client(s) · page {{ page() + 1 }} sur {{ totalPages() }}
+      } @else {
+        Gérez vos fiches clients, leurs interactions et leur risque de churn.
+      }
+    </p>
+  </div>
+
+  <a class="btn btn-primary" routerLink="/clients/nouveau">
+    + Nouveau client
+  </a>
+</div>
+
+<section class="card filters">
+  <form [formGroup]="filtres" class="filters-grid">
+
+    <div class="field search-field">
+      <label for="keyword">Recherche</label>
+      <input
+        id="keyword"
+        type="search"
+        formControlName="keyword"
+        placeholder="Code, raison sociale, ICE, e-mail…" />
+    </div>
+
+    <div class="field">
+      <label for="statut">Statut</label>
+      <select id="statut" formControlName="statut">
+        <option value="">Tous</option>
+        <option value="PROSPECT">Prospect</option>
+        <option value="ACTIF">Actif</option>
+        <option value="INACTIF">Inactif</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="type">Type</label>
+      <select id="type" formControlName="type">
+        <option value="">Tous</option>
+        <option value="ENTREPRISE">Entreprise</option>
+        <option value="PARTICULIER">Particulier</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="ville">Ville</label>
+      <input id="ville" type="text" formControlName="ville" placeholder="Casablanca…" />
+    </div>
+
+    <div class="field">
+      <label for="commercialId">Commercial</label>
+      <select id="commercialId" formControlName="commercialId">
+        <option value="">Tous</option>
+        @for (commercial of commerciaux(); track commercial.id) {
+          <option [value]="commercial.id">
+            {{ commercial.prenom }} {{ commercial.nom }}
+          </option>
+        }
+      </select>
+    </div>
+
+    <div class="filters-actions">
+      <button type="button" class="btn btn-secondary" (click)="reinitialiser()">
+        Réinitialiser
+      </button>
+    </div>
+  </form>
+</section>
+
+@if (erreur()) {
+  <div class="alert alert-error">{{ erreur() }}</div>
+}
+
+<section class="card table-card">
+  @if (chargement()) {
+    <div class="etat">
+      <span class="spinner"></span>
+      Chargement des clients…
+    </div>
+  } @else if (clients().length === 0) {
+    <div class="etat">
+      <strong>Aucun client trouvé.</strong>
+      <span class="muted">Modifiez vos filtres ou créez un nouveau client.</span>
+    </div>
+  } @else {
+    <div class="table-scroll">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Raison sociale</th>
+            <th>ICE</th>
+            <th>Ville</th>
+            <th>Type</th>
+            <th>Statut</th>
+            <th>Commercial</th>
+            <th class="th-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (client of clients(); track client.id) {
+            <tr>
+              <td><span class="code">{{ client.code }}</span></td>
+              <td>
+                <a class="raison" [routerLink]="['/clients', client.id]">
+                  {{ client.raisonSociale }}
+                </a>
+                @if (client.email) {
+                  <span class="sous-titre">{{ client.email }}</span>
+                }
+              </td>
+              <td class="ice">{{ client.ice || '—' }}</td>
+              <td>{{ client.ville || '—' }}</td>
+              <td>
+                <span class="badge" [class.badge-entreprise]="client.type === 'ENTREPRISE'"
+                  [class.badge-particulier]="client.type === 'PARTICULIER'">
+                  {{ libelleType(client.type) }}
+                </span>
+              </td>
+              <td>
+                <span [class]="classeStatut(client.statut)">
+                  {{ client.statut }}
+                </span>
+              </td>
+              <td>{{ nomCommercial(client) }}</td>
+              <td>
+                <div class="actions">
+                  <a class="btn btn-secondary btn-sm" [routerLink]="['/clients', client.id]">
+                    Consulter
+                  </a>
+                  <a class="btn btn-secondary btn-sm" [routerLink]="['/clients', client.id, 'modifier']">
+                    Modifier
+                  </a>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <footer class="pagination">
+      <span class="muted">
+        {{ totalElements() }} résultat(s)
+      </span>
+      <div class="pagination-actions">
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm"
+          [disabled]="page() === 0"
+          (click)="pagePrecedente()">
+          Précédent
+        </button>
+        <span class="page-indicator">
+          Page {{ page() + 1 }} / {{ totalPages() }}
+        </span>
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm"
+          [disabled]="page() + 1 >= totalPages()"
+          (click)="pageSuivante()">
+          Suivant
+        </button>
+      </div>
+    </footer>
+  }
+</section>
