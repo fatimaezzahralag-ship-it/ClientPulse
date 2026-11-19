@@ -29,4 +29,6 @@ public interface RelanceJpaRepository extends JpaRepository<Relance, Long> {
             @Param("commercialId") Long commercialId,
             @Param("statut") StatutRelance statut,
             Pageable pageable);
+
+    boolean existsByFactureIdAndNatureAndNiveau(Long factureId, NatureRelance nature, Integer niveau);
 }

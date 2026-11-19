@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 
 /**
  * Une ligne de facture. Le taux de TVA est COPIÉ à l'émission : si le taux change plus tard,
- * les anciennes factures ne bougent pas. Le lien vers Produit sera ajouté en J3.
+ * les anciennes factures ne bougent pas. Le produit du catalogue est facultatif.
  */
 @Entity
 @Table(name = "ligne_facture")
@@ -25,6 +25,11 @@ public class LigneFacture implements LigneCalculable {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "facture_id", nullable = false)
     private Facture facture;
+
+    // Lien facultatif vers le catalogue : une ligne peut aussi être libre (sans produit)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "produit_id")
+    private Produit produit;
 
     @Column(name = "designation", nullable = false, length = 255)
     private String designation;

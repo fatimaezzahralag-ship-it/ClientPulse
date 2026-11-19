@@ -1,5 +1,7 @@
 package ma.ensam.clientpulse.dto;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import ma.ensam.clientpulse.domain.enums.ModePaiement;
 
 import java.math.BigDecimal;
@@ -11,8 +13,8 @@ import java.time.LocalDate;
  */
 public record PaiementDto(Long id,
                           Long factureId,
-                          LocalDate datePaiement,
-                          BigDecimal montant,
-                          ModePaiement mode,
+                          @NotNull LocalDate datePaiement,
+                          @NotNull @Positive BigDecimal montant,
+                          @NotNull ModePaiement mode,
                           String reference) {
 }

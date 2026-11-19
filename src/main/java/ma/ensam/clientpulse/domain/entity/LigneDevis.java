@@ -8,7 +8,7 @@ import lombok.Setter;
 import java.math.BigDecimal;
 
 /**
- * Une ligne d'un devis. Le lien vers Produit sera ajouté en J3 (catalogue).
+ * Une ligne d'un devis. Le produit du catalogue est facultatif.
  */
 @Entity
 @Table(name = "ligne_devis")
@@ -24,6 +24,11 @@ public class LigneDevis implements LigneCalculable {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "devis_id", nullable = false)
     private Devis devis;
+
+    // Lien facultatif vers le catalogue : une ligne peut aussi être libre (sans produit)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "produit_id")
+    private Produit produit;
 
     @Column(name = "designation", nullable = false, length = 255)
     private String designation;

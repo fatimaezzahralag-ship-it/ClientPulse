@@ -46,7 +46,9 @@ class FlywaySchemaTest {
             "paiement",
             "parametres_scoring",
             "scores_client",
-            "relances"
+            "relances",
+            "taux_tva",
+            "produit"
     );
 
     @Autowired
@@ -60,7 +62,7 @@ class FlywaySchemaTest {
                 String.class
         );
 
-        assertThat(versions).containsExactly("1", "2", "4", "5");
+        assertThat(versions).containsExactly("1", "2", "4", "5", "6");
     }
 
     @Test

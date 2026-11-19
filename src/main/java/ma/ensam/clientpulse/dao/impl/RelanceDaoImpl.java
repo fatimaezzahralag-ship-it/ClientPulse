@@ -48,4 +48,9 @@ public class RelanceDaoImpl implements RelanceDao {
             Long commercialId, StatutRelance statut, Pageable pageable) {
         return repository.rechercher(commercialId, statut, pageable);
     }
+
+    @Override
+    public boolean existePourFactureEtNiveau(Long factureId, NatureRelance nature, int niveau) {
+        return repository.existsByFactureIdAndNatureAndNiveau(factureId, nature, niveau);
+    }
 }
