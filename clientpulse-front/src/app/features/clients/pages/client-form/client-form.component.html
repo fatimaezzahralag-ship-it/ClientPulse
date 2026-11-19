@@ -1,0 +1,159 @@
+<div class="page-head">
+  <div>
+    <a class="retour" routerLink="/clients">← Retour à la liste</a>
+    <h1>{{ edition() ? 'Modifier le client' : 'Nouveau client' }}</h1>
+    <p class="muted">
+      @if (edition()) {
+        Mise à jour de la fiche client.
+      } @else {
+        Renseignez les informations principales pour créer la fiche.
+      }
+    </p>
+  </div>
+</div>
+
+@if (erreur()) {
+  <div class="alert alert-error">{{ erreur() }}</div>
+}
+
+@if (chargement()) {
+  <div class="card etat">
+    <span class="spinner"></span>
+    Chargement de la fiche…
+  </div>
+} @else {
+  <form [formGroup]="formulaire" (ngSubmit)="soumettre()">
+
+    <section class="card">
+      <div class="card-header">
+        <h2>Identité</h2>
+        <span class="muted">Informations légales de l'entreprise ou du particulier</span>
+      </div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="field">
+            <label for="code">Code client <span class="required">*</span></label>
+            <input id="code" type="text" formControlName="code" placeholder="CLI-002" />
+            @if (formulaire.controls.code.touched && formulaire.controls.code.invalid) {
+              <span class="error">Le code est obligatoire (30 caractères maximum).</span>
+            }
+          </div>
+
+          <div class="field">
+            <label for="raisonSociale">Raison sociale <span class="required">*</span></label>
+            <input id="raisonSociale" type="text" formControlName="raisonSociale"
+              placeholder="Nom de l'entreprise ou du client" />
+            @if (formulaire.controls.raisonSociale.touched && formulaire.controls.raisonSociale.invalid) {
+              <span class="error">La raison sociale est obligatoire.</span>
+            }
+          </div>
+
+          <div class="field">
+            <label for="ice">ICE</label>
+            <input id="ice" type="text" formControlName="ice" placeholder="Identifiant commun de l'entreprise" />
+            <span class="hint">Identifiant Commun de l'Entreprise (facultatif).</span>
+          </div>
+
+          <div class="field">
+            <label for="type">Type <span class="required">*</span></label>
+            <select id="type" formControlName="type">
+              <option value="ENTREPRISE">Entreprise</option>
+              <option value="PARTICULIER">Particulier</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <h2>Contact & adresse</h2>
+        <span class="muted">Coordonnées utilisées pour les relances</span>
+      </div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="field">
+            <label for="email">E-mail</label>
+            <input id="email" type="email" formControlName="email" placeholder="contact@entreprise.ma" />
+            @if (formulaire.controls.email.touched && formulaire.controls.email.invalid) {
+              <span class="error">Adresse e-mail invalide.</span>
+            }
+          </div>
+
+          <div class="field">
+            <label for="telephone">Téléphone</label>
+            <input id="telephone" type="tel" formControlName="telephone" placeholder="0522 00 00 00" />
+          </div>
+
+          <div class="field full">
+            <label for="adresse">Adresse</label>
+            <input id="adresse" type="text" formControlName="adresse" placeholder="Numéro, rue, quartier…" />
+          </div>
+
+          <div class="field">
+            <label for="ville">Ville</label>
+            <input id="ville" type="text" formControlName="ville" placeholder="Casablanca" />
+          </div>
+
+          <div class="field">
+            <label for="secteur">Secteur d'activité</label>
+            <input id="secteur" type="text" formControlName="secteur" placeholder="Industrie, services…" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <h2>Suivi commercial</h2>
+        <span class="muted">Affectation et conditions de règlement</span>
+      </div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="field">
+            <label for="delaiPaiementJours">Délai de paiement (jours) <span class="required">*</span></label>
+            <input id="delaiPaiementJours" type="number" min="0" max="180"
+              formControlName="delaiPaiementJours" />
+            @if (formulaire.controls.delaiPaiementJours.touched && formulaire.controls.delaiPaiementJours.invalid) {
+              <span class="error">Saisissez un délai entre 0 et 180 jours.</span>
+            }
+          </div>
+
+          <div class="field">
+            <label for="statut">Statut <span class="required">*</span></label>
+            <select id="statut" formControlName="statut">
+              <option value="PROSPECT">Prospect</option>
+              <option value="ACTIF">Actif</option>
+              <option value="INACTIF">Inactif</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="commercialId">Commercial affecté</label>
+            <select id="commercialId" formControlName="commercialId">
+              <option value="">Non affecté</option>
+              @for (commercial of commerciaux(); track commercial.id) {
+                <option [value]="commercial.id">
+                  {{ commercial.prenom }} {{ commercial.nom }} — {{ commercial.email }}
+                </option>
+              }
+            </select>
+            <span class="hint">Le responsable du compte et du suivi des interactions.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="annuler()">Annuler</button>
+      <button type="submit" class="btn btn-primary" [disabled]="enregistrement()">
+        @if (enregistrement()) {
+          <span class="spinner"></span>
+          Enregistrement…
+        } @else {
+          {{ edition() ? 'Enregistrer les modifications' : 'Créer le client' }}
+        }
+      </button>
+    </div>
+  </form>
+}

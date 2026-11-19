@@ -1,0 +1,175 @@
+<div class="page-head">
+  <div>
+    <a class="retour" routerLink="/clients">← Retour à la liste</a>
+    @if (client(); as clientCourant) {
+      <div class="titre-ligne">
+        <h1>{{ clientCourant.raisonSociale }}</h1>
+        <span class="code">{{ clientCourant.code }}</span>
+      </div>
+      <p class="muted">
+        Fiche client ·
+        <span [class]="
+          clientCourant.statut === 'ACTIF' ? 'libelle-actif' :
+          clientCourant.statut === 'PROSPECT' ? 'libelle-prospect' : 'libelle-inactif'
+        ">
+          {{ libelleStatut(clientCourant.statut) }}
+        </span>
+      </p>
+    } @else {
+      <h1>Fiche client</h1>
+    }
+  </div>
+
+  @if (client(); as clientCourant) {
+    <a class="btn btn-secondary" [routerLink]="['/clients', clientCourant.id, 'modifier']">
+      Modifier la fiche
+    </a>
+  }
+</div>
+
+@if (erreur()) {
+  <div class="alert alert-error">{{ erreur() }}</div>
+}
+
+@if (chargement()) {
+  <div class="card etat">
+    <span class="spinner"></span>
+    Chargement de la fiche client…
+  </div>
+} @else if (client(); as clientCourant) {
+
+  <div class="grille">
+
+    <section class="card fiche">
+      <div class="card-header">
+        <h2>Informations</h2>
+        <span class="muted">Données principales du client</span>
+      </div>
+      <div class="card-body">
+        <div class="bloc">
+          <h3>Identité</h3>
+          <dl>
+            <div><dt>Code client</dt><dd>{{ clientCourant.code }}</dd></div>
+            <div><dt>Raison sociale</dt><dd>{{ clientCourant.raisonSociale }}</dd></div>
+            <div><dt>ICE</dt><dd>{{ clientCourant.ice || '—' }}</dd></div>
+            <div>
+              <dt>Type</dt>
+              <dd>
+                <span class="badge" [class.badge-entreprise]="clientCourant.type === 'ENTREPRISE'"
+                  [class.badge-particulier]="clientCourant.type === 'PARTICULIER'">
+                  {{ clientCourant.type === 'ENTREPRISE' ? 'Entreprise' : 'Particulier' }}
+                </span>
+              </dd>
+            </div>
+            <div><dt>Secteur</dt><dd>{{ clientCourant.secteur || '—' }}</dd></div>
+          </dl>
+        </div>
+
+        <div class="bloc">
+          <h3>Contact</h3>
+          <dl>
+            <div><dt>E-mail</dt><dd>{{ clientCourant.email || '—' }}</dd></div>
+            <div><dt>Téléphone</dt><dd>{{ clientCourant.telephone || '—' }}</dd></div>
+            <div><dt>Adresse</dt><dd>{{ clientCourant.adresse || '—' }}</dd></div>
+            <div><dt>Ville</dt><dd>{{ clientCourant.ville || '—' }}</dd></div>
+          </dl>
+        </div>
+
+        <div class="bloc">
+          <h3>Suivi commercial</h3>
+          <dl>
+            <div><dt>Commercial affecté</dt><dd>{{ nomCommercial() }}</dd></div>
+            <div>
+              <dt>Statut</dt>
+              <dd>
+                <span [class]="
+                  clientCourant.statut === 'ACTIF' ? 'badge badge-active' :
+                  clientCourant.statut === 'PROSPECT' ? 'badge badge-prospect' : 'badge badge-inactive'
+                ">{{ libelleStatut(clientCourant.statut) }}</span>
+              </dd>
+            </div>
+            <div>
+              <dt>Délai de paiement</dt>
+              <dd>{{ clientCourant.delaiPaiementJours ?? '—' }}
+                @if (clientCourant.delaiPaiementJours != null) { jours }
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <section class="card score-card">
+      <div class="card-header">
+        <h2>Risque de churn</h2>
+        <button type="button" class="btn btn-primary btn-sm"
+          (click)="recalculer()" [disabled]="calculEnCours()">
+          @if (calculEnCours()) {
+            <span class="spinner"></span>
+            Calcul…
+          } @else {
+            {{ score() ? 'Recalculer' : 'Calculer' }}
+          }
+        </button>
+      </div>
+
+      <div class="card-body">
+        @if (score(); as scoreCourant) {
+          <div class="jauge">
+            <div class="jauge-valeur" [class]="'niveau-' + scoreCourant.niveau.toLowerCase()">
+              <strong>{{ scoreCourant.scoreRisque | number: '1.0-0' }}</strong>
+              <small>/ 100</small>
+            </div>
+            <div class="jauge-details">
+              <span [class]="classeNiveau(scoreCourant.niveau)">
+                Risque {{ scoreCourant.niveau.toLowerCase() }}
+              </span>
+              <span class="muted">Segment : {{ libelleSegment(scoreCourant.segment) }}</span>
+              <span class="muted">Calculé le {{ scoreCourant.dateCalcul | date: 'dd/MM/yyyy' }}</span>
+            </div>
+          </div>
+
+          <h3>Facteurs explicatifs</h3>
+          <ul class="facteurs">
+            @for (facteur of scoreCourant.facteursExplicatifs; track facteur) {
+              <li>{{ facteur }}</li>
+            } @empty {
+              <li class="muted">Aucune explication disponible.</li>
+            }
+          </ul>
+
+          @if (historiqueScore().length > 1) {
+            <h3>Historique des scores</h3>
+            <ul class="historique">
+              @for (ancien of historiqueScore(); track ancien.id) {
+                <li>
+                  <span>{{ ancien.dateCalcul | date: 'dd/MM/yyyy' }}</span>
+                  <strong>{{ ancien.scoreRisque | number: '1.0-0' }}</strong>
+                  <span [class]="classeNiveau(ancien.niveau)">{{ ancien.niveau }}</span>
+                </li>
+              }
+            </ul>
+          }
+        } @else {
+          <div class="score-vide">
+            <div class="score-vide-icone">◎</div>
+            <strong>Aucun score calculé</strong>
+            <span class="muted">
+              Lancez une évaluation pour obtenir le niveau de risque et ses explications.
+            </span>
+          </div>
+        }
+      </div>
+    </section>
+  </div>
+
+  <app-interaction-list
+    [clientId]="clientCourant.id"
+    [autoriserAjout]="autoriserAjout()" />
+
+} @else {
+  <div class="card etat">
+    <strong>Fiche indisponible.</strong>
+    <span class="muted">Le client demandé n'existe pas ou a été supprimé.</span>
+  </div>
+}
