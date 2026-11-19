@@ -78,4 +78,19 @@ public class Relance extends EntiteTracable {
 
     @Column(name = "date_echeance")
     private LocalDate dateEcheance;
+
+    /**
+     * Facture concernée, renseignée seulement pour une relance de nature PAIEMENT (P1).
+     * Reste vide pour une relance COMMERCIALE.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "facture_id")
+    private Facture facture;
+
+    /**
+     * Niveau d'une relance de paiement : 1 = J-3, 2 = J+3, 3 = J+15, 4 = J+30, 5 = J+45.
+     * Sert à ne créer qu'une relance par niveau et par facture. Vide pour une relance COMMERCIALE.
+     */
+    @Column(name = "niveau")
+    private Integer niveau;
 }

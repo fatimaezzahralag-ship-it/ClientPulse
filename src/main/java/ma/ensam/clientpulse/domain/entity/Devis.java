@@ -5,12 +5,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ma.ensam.clientpulse.domain.enums.StatutDevis;
+import ma.ensam.clientpulse.exception.RegleMetierException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Proposition commerciale envoyée à un client. */
 @Entity
 @Table(name = "devis")
 @Getter
@@ -53,15 +55,55 @@ public class Devis extends EntiteTracable {
     @JoinColumn(name = "commercial_id")
     private Commercial commercial;
 
+    // Composition : les lignes vivent et meurent avec le devis (cascade + orphanRemoval)
     @OneToMany(mappedBy = "devis", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<LigneDevis> lignes = new ArrayList<>();
 
+    /** Ajoute une ligne ET règle le lien dans les deux sens (sinon devis_id reste vide en base). */
     public void ajouterLigne(LigneDevis ligne) {
         lignes.add(ligne);
         ligne.setDevis(this);
     }
 
+    /** Vrai si la date de validité est dépassée. */
     public boolean estExpire(LocalDate jour) {
         return dateValidite != null && jour.isAfter(dateValidite);
+    }
+
+    // ------------------------------------------------------------------ règles métier
+
+    /** Seul un brouillon peut être modifié ou supprimé. */
+    public boolean estModifiable() {
+        return statut == StatutDevis.BROUILLON;
+    }
+
+    /** BROUILLON -> ENVOYE */
+    public void envoyer() {
+        if (statut != StatutDevis.BROUILLON) {
+            throw new RegleMetierException("Seul un brouillon peut être envoyé (statut actuel : " + statut + ").");
+        }
+        if (lignes.isEmpty()) {
+            throw new RegleMetierException("Impossible d'envoyer un devis sans ligne.");
+        }
+        statut = StatutDevis.ENVOYE;
+    }
+
+    /** ENVOYE -> ACCEPTE, à condition que le devis ne soit pas expiré. */
+    public void accepter(LocalDate jour) {
+        if (statut != StatutDevis.ENVOYE) {
+            throw new RegleMetierException("Seul un devis envoyé peut être accepté (statut actuel : " + statut + ").");
+        }
+        if (estExpire(jour)) {
+            throw new RegleMetierException("Ce devis est expiré depuis le " + dateValidite + ".");
+        }
+        statut = StatutDevis.ACCEPTE;
+    }
+
+    /** ENVOYE -> REFUSE */
+    public void refuser() {
+        if (statut != StatutDevis.ENVOYE) {
+            throw new RegleMetierException("Seul un devis envoyé peut être refusé (statut actuel : " + statut + ").");
+        }
+        statut = StatutDevis.REFUSE;
     }
 }

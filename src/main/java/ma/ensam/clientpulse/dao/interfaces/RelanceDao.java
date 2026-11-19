@@ -22,4 +22,7 @@ public interface RelanceDao {
 
     Page<Relance> rechercher(
             Long commercialId, StatutRelance statut, Pageable pageable);
+
+    /** Vrai si une relance de cette nature existe déjà pour cette facture et ce niveau (anti-doublon de P1). */
+    boolean existePourFactureEtNiveau(Long factureId, NatureRelance nature, int niveau);
 }

@@ -4,6 +4,7 @@ import ma.ensam.clientpulse.domain.entity.Facture;
 import ma.ensam.clientpulse.domain.entity.LigneFacture;
 import ma.ensam.clientpulse.domain.entity.Paiement;
 import ma.ensam.clientpulse.domain.enums.StatutFacture;
+import ma.ensam.clientpulse.exception.RegleMetierException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -43,7 +44,7 @@ class FactureTest {
     @Test
     void onNePeutPasEmettreDeuxFois() {
         assertThatThrownBy(() -> facture.emettre("FAC-2026-0002"))
-                .isInstanceOf(IllegalStateException.class);
+                .isInstanceOf(RegleMetierException.class);
     }
 
     @Test
@@ -66,7 +67,7 @@ class FactureTest {
     @Test
     void paiementSuperieurAuResteEstRefuse() {
         assertThatThrownBy(() -> facture.enregistrerPaiement(paiement("1000.01")))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(RegleMetierException.class);
     }
 
     @Test
@@ -82,6 +83,6 @@ class FactureTest {
     void annulerRefuseSiDesPaiementsExistent() {
         facture.enregistrerPaiement(paiement("100.00"));
 
-        assertThatThrownBy(() -> facture.annuler()).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> facture.annuler()).isInstanceOf(RegleMetierException.class);
     }
 }

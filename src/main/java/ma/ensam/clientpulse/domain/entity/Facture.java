@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ma.ensam.clientpulse.domain.enums.StatutFacture;
 import ma.ensam.clientpulse.domain.enums.TypeFacture;
+import ma.ensam.clientpulse.exception.RegleMetierException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -106,10 +107,10 @@ public class Facture extends EntiteTracable {
     /** Donne le numéro à la facture et la fige. */
     public void emettre(String numero) {
         if (!estModifiable()) {
-            throw new IllegalStateException("Cette facture est déjà émise.");
+            throw new RegleMetierException("Cette facture est déjà émise.");
         }
         if (lignes.isEmpty()) {
-            throw new IllegalStateException("Impossible d'émettre une facture sans ligne.");
+            throw new RegleMetierException("Impossible d'émettre une facture sans ligne.");
         }
         this.numero = numero;
         this.statut = StatutFacture.EMISE;
@@ -121,13 +122,13 @@ public class Facture extends EntiteTracable {
                 || statut == StatutFacture.PARTIELLEMENT_PAYEE
                 || statut == StatutFacture.EN_RETARD;
         if (!payable) {
-            throw new IllegalStateException("On ne peut pas payer une facture au statut " + statut + ".");
+            throw new RegleMetierException("On ne peut pas payer une facture au statut " + statut + ".");
         }
         if (paiement.getMontant() == null || paiement.getMontant().signum() <= 0) {
-            throw new IllegalArgumentException("Le montant du paiement doit être positif.");
+            throw new RegleMetierException("Le montant du paiement doit être positif.");
         }
         if (paiement.getMontant().compareTo(getResteAPayer()) > 0) {
-            throw new IllegalArgumentException("Le paiement dépasse le reste à payer.");
+            throw new RegleMetierException("Le paiement dépasse le reste à payer.");
         }
         paiements.add(paiement);
         paiement.setFacture(this);
@@ -143,13 +144,13 @@ public class Facture extends EntiteTracable {
     /** Annule une facture émise qui n'a reçu aucun paiement. */
     public void annuler() {
         if (statut == StatutFacture.BROUILLON) {
-            throw new IllegalStateException("Un brouillon se supprime, il ne s'annule pas.");
+            throw new RegleMetierException("Un brouillon se supprime, il ne s'annule pas.");
         }
         if (statut == StatutFacture.ANNULEE) {
-            throw new IllegalStateException("Cette facture est déjà annulée.");
+            throw new RegleMetierException("Cette facture est déjà annulée.");
         }
         if (!paiements.isEmpty()) {
-            throw new IllegalStateException("Cette facture a déjà reçu des paiements.");
+            throw new RegleMetierException("Cette facture a déjà reçu des paiements.");
         }
         statut = StatutFacture.ANNULEE;
     }
@@ -163,5 +164,19 @@ public class Facture extends EntiteTracable {
                 && dateEcheance != null
                 && jour.isAfter(dateEcheance)
                 && getResteAPayer().signum() > 0;
+    }
+
+    /**
+     * Passe la facture en EN_RETARD si l'échéance est dépassée (appelé chaque nuit par le job).
+     * Une facture déjà EN_RETARD n'est pas modifiée.
+     * @return vrai si le statut vient de changer
+     */
+    public boolean marquerEnRetard(LocalDate jour) {
+        boolean candidate = statut == StatutFacture.EMISE || statut == StatutFacture.PARTIELLEMENT_PAYEE;
+        if (candidate && estEnRetard(jour)) {
+            statut = StatutFacture.EN_RETARD;
+            return true;
+        }
+        return false;
     }
 }
