@@ -39,6 +39,20 @@ public class CommercialServiceImpl implements CommercialService {
                 .toList();
     }
 
+    @Override
+    public Long findIdByUtilisateurEmail(String email) {
+        if (email == null) {
+            return null;
+        }
+        return commercialDao.findAll().stream()
+                .filter(commercial -> commercial.getUtilisateur() != null)
+                .filter(commercial -> email.equalsIgnoreCase(
+                        commercial.getUtilisateur().getEmail()))
+                .map(commercial -> commercial.getId())
+                .findFirst()
+                .orElse(null);
+    }
+
     private static String valeur(String texte) {
         return texte != null ? texte : "";
     }

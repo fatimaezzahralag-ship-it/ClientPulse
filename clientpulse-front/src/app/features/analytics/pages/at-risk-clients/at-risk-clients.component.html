@@ -1,0 +1,123 @@
+<div class="page-head">
+  <div>
+    <a class="retour" routerLink="/analytics">← Retour au tableau de bord</a>
+    <h1>Clients à relancer</h1>
+    <p class="muted">
+      Clients dont le dernier score est élevé ou critique. Classement par score décroissant.
+    </p>
+  </div>
+</div>
+
+<section class="card filters">
+  <div class="filters-grid">
+    <div class="field">
+      <label for="niveau">Niveau de risque</label>
+      <select
+        id="niveau"
+        [value]="niveau()"
+        (change)="changerNiveau($any($event.target).value)">
+        <option value="">Élevé et critique</option>
+        @for (item of niveaux; track item) {
+          <option [value]="item">{{ libellesNiveaux[item] }}</option>
+        }
+      </select>
+    </div>
+  </div>
+</section>
+
+@if (erreur()) {
+  <div class="alert alert-error">{{ erreur() }}</div>
+}
+
+<section class="card table-card">
+  @if (chargement()) {
+    <div class="etat">
+      <span class="spinner"></span>
+      Chargement des clients…
+    </div>
+  } @else if (clients().length === 0) {
+    <div class="etat">
+      <strong>Aucun client à relancer.</strong>
+      <span class="muted">Aucun score élevé ou critique pour ce filtre.</span>
+    </div>
+  } @else {
+    <div class="table-scroll">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Client</th>
+            <th>Score</th>
+            <th>Niveau</th>
+            <th>Segment RFM</th>
+            <th>Facteurs explicatifs</th>
+            <th class="th-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (client of clients(); track client.clientId) {
+            <tr>
+              <td>
+                <a class="raison" [routerLink]="['/analytics/clients', client.clientId]">
+                  {{ client.raisonSociale }}
+                </a>
+                <span class="sous-titre code">{{ client.code }}</span>
+              </td>
+              <td>
+                <strong class="score">{{ client.scoreRisque | number: '1.0-0' }}</strong>
+                <span class="muted">/100</span>
+              </td>
+              <td>
+                <span [class]="classeNiveau(client.niveau)">
+                  {{ libellesNiveaux[client.niveau] }}
+                </span>
+              </td>
+              <td>{{ libellesSegments[client.segment] }}</td>
+              <td class="facteurs">
+                @for (facteur of client.facteursExplicatifs; track facteur) {
+                  <span class="facteur">{{ facteur }}</span>
+                } @empty {
+                  <span class="muted">—</span>
+                }
+              </td>
+              <td>
+                <div class="actions">
+                  <a
+                    class="btn btn-secondary btn-sm"
+                    [routerLink]="['/analytics/clients', client.clientId]">
+                    Détail
+                  </a>
+                  <a
+                    class="btn btn-secondary btn-sm"
+                    [routerLink]="['/clients', client.clientId]">
+                    Fiche
+                  </a>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <footer class="pagination">
+      <span class="muted">{{ totalElements() }} résultat(s)</span>
+      <div class="pagination-actions">
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm"
+          [disabled]="page() === 0"
+          (click)="pagePrecedente()">
+          Précédent
+        </button>
+        <span class="page-indicator">Page {{ page() + 1 }} / {{ totalPages() }}</span>
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm"
+          [disabled]="page() + 1 >= totalPages()"
+          (click)="pageSuivante()">
+          Suivant
+        </button>
+      </div>
+    </footer>
+  }
+</section>

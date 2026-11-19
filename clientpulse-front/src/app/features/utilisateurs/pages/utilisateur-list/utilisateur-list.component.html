@@ -1,0 +1,87 @@
+<div class="page-head">
+  <div>
+    <h1>Utilisateurs</h1>
+    <p class="muted">
+      Comptes d’accès et rôles attribués. La modification des comptes est réservée aux administrateurs.
+    </p>
+  </div>
+  <a class="btn btn-primary" routerLink="/utilisateurs/nouveau">
+    + Nouvel utilisateur
+  </a>
+</div>
+
+@if (erreur()) {
+  <div class="alert alert-error">{{ erreur() }}</div>
+}
+@if (message()) {
+  <div class="alert alert-success">{{ message() }}</div>
+}
+
+<section class="card table-card">
+  @if (chargement()) {
+    <div class="etat">
+      <span class="spinner"></span>
+      Chargement des utilisateurs…
+    </div>
+  } @else if (utilisateurs().length === 0) {
+    <div class="etat">
+      <strong>Aucun utilisateur trouvé.</strong>
+      <span class="muted">Créez un premier compte pour accéder à l’application.</span>
+    </div>
+  } @else {
+    <div class="table-scroll">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>E-mail</th>
+            <th>Rôles</th>
+            <th>Statut</th>
+            <th class="th-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (utilisateur of utilisateurs(); track utilisateur.id) {
+            <tr>
+              <td>
+                <strong>{{ utilisateur.prenom }} {{ utilisateur.nom }}</strong>
+                <span class="sous-titre">#{{ utilisateur.id }}</span>
+              </td>
+              <td>{{ utilisateur.email }}</td>
+              <td>
+                @for (role of utilisateur.roles; track role) {
+                  <span class="badge badge-role">{{ libelleRole(role) }}</span>
+                } @empty {
+                  <span class="muted">Aucun rôle</span>
+                }
+              </td>
+              <td>
+                <span [class]="utilisateur.actif ? 'badge badge-active' : 'badge badge-inactive'">
+                  {{ utilisateur.actif ? 'Actif' : 'Désactivé' }}
+                </span>
+              </td>
+              <td>
+                <div class="actions">
+                  <a
+                    class="btn btn-secondary btn-sm"
+                    [routerLink]="['/utilisateurs', utilisateur.id]">
+                    Modifier
+                  </a>
+                  @if (utilisateur.actif) {
+                    <button
+                      type="button"
+                      class="btn btn-danger btn-sm"
+                      (click)="desactiver(utilisateur)"
+                      [disabled]="suppressionEnCours() === utilisateur.id">
+                      Désactiver
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

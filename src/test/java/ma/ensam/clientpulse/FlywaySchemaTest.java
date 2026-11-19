@@ -43,21 +43,24 @@ class FlywaySchemaTest {
             "ligne_devis",
             "facture",
             "ligne_facture",
-            "paiement"
+            "paiement",
+            "parametres_scoring",
+            "scores_client",
+            "relances"
     );
 
     @Autowired
     private JdbcTemplate jdbc;
 
     @Test
-    void flyway_a_applique_les_deux_migrations() {
+    void flyway_a_applique_toutes_les_migrations() {
         List<String> versions = jdbc.queryForList(
                 "SELECT version FROM flyway_schema_history "
                         + "WHERE success = 1 ORDER BY installed_rank",
                 String.class
         );
 
-        assertThat(versions).containsExactly("1", "2");
+        assertThat(versions).containsExactly("1", "2", "4", "5");
     }
 
     @Test

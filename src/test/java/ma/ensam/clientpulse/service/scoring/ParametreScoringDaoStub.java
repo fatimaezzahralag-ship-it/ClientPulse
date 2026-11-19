@@ -41,10 +41,26 @@ public class ParametreScoringDaoStub implements ParametreScoringDao {
 
         valeurs.put(NomsParametres.SEUIL_RETARD_FAIBLE, valeur("7"));
         valeurs.put(NomsParametres.SEUIL_RETARD_MOYEN, valeur("30"));
+
+        // Seuils RFM de la migration V5.
+        valeurs.put(NomsParametres.RFM_RECENCE_CHAMPION, valeur("30"));
+        valeurs.put(NomsParametres.RFM_RECENCE_LOYAL, valeur("90"));
+        valeurs.put(NomsParametres.RFM_FREQUENCE_CHAMPION, valeur("10"));
+        valeurs.put(NomsParametres.RFM_FREQUENCE_LOYAL, valeur("4"));
+        valeurs.put(NomsParametres.RFM_MONETAIRE_CHAMPION, valeur("50000"));
+        valeurs.put(NomsParametres.RFM_MONETAIRE_LOYAL, valeur("10000"));
+        valeurs.put(NomsParametres.RFM_NOUVEAU_JOURS, valeur("90"));
+        valeurs.put(NomsParametres.RFM_HIBERNATION_JOURS, valeur("240"));
+        valeurs.put(NomsParametres.RFM_PERDU_JOURS, valeur("365"));
     }
 
     public ParametreScoringDaoStub avec(String nom, String nouvelleValeur) {
         valeurs.put(nom, valeur(nouvelleValeur));
+        return this;
+    }
+
+    public ParametreScoringDaoStub sans(String nom) {
+        valeurs.remove(nom);
         return this;
     }
 
@@ -54,6 +70,13 @@ public class ParametreScoringDaoStub implements ParametreScoringDao {
         return v == null
                 ? Optional.empty()
                 : Optional.of(new ParametreScoring(nom, v));
+    }
+
+    @Override
+    public Optional<ParametreScoring> findById(Long id) {
+        // Les tests unitaires utilisent le plus souvent findByNom ; cette
+        // doublure n'attribue pas d'identifiant persistant.
+        return Optional.empty();
     }
 
     @Override

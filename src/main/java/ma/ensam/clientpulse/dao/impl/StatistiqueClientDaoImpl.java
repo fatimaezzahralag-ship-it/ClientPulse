@@ -71,7 +71,36 @@ public class StatistiqueClientDaoImpl implements StatistiqueClientDao {
                     AND f.date_emission IS NOT NULL
                     AND f.date_emission >= DATE_SUB(:jour, INTERVAL 6 MONTH)
                     AND f.date_emission < DATE_SUB(:jour, INTERVAL 3 MONTH))
-                    AS montantAchats3MoisPrecedents
+                    AS montantAchats3MoisPrecedents,
+                -- Indicateurs RFM : 100 % des lectures passent par ce DAO.
+                (SELECT MAX(f.date_emission)
+                   FROM facture f
+                  WHERE f.client_id = c.id
+                    AND f.type = 'FACTURE'
+                    AND f.statut <> 'ANNULEE'
+                    AND f.date_emission IS NOT NULL) AS dernierAchat,
+                (SELECT MIN(f.date_emission)
+                   FROM facture f
+                  WHERE f.client_id = c.id
+                    AND f.type = 'FACTURE'
+                    AND f.statut <> 'ANNULEE'
+                    AND f.date_emission IS NOT NULL) AS premierAchat,
+                (SELECT COUNT(*)
+                   FROM facture f
+                  WHERE f.client_id = c.id
+                    AND f.type = 'FACTURE'
+                    AND f.statut <> 'ANNULEE'
+                    AND f.date_emission IS NOT NULL
+                    AND f.date_emission >= DATE_SUB(:jour, INTERVAL 12 MONTH)
+                    AND f.date_emission <= :jour) AS nombreAchats12Mois,
+                (SELECT COALESCE(SUM(f.total_ttc), 0)
+                   FROM facture f
+                  WHERE f.client_id = c.id
+                    AND f.type = 'FACTURE'
+                    AND f.statut <> 'ANNULEE'
+                    AND f.date_emission IS NOT NULL
+                    AND f.date_emission >= DATE_SUB(:jour, INTERVAL 12 MONTH)
+                    AND f.date_emission <= :jour) AS montantAchats12Mois
             FROM clients c
             WHERE c.id = :clientId
             """;
@@ -101,7 +130,11 @@ public class StatistiqueClientDaoImpl implements StatistiqueClientDao {
                     versEntier(ligne[3]),
                     versDecimal(ligne[4]),
                     versDecimal(ligne[5]),
-                    versDecimal(ligne[6])
+                    versDecimal(ligne[6]),
+                    versDate(ligne[7]),
+                    versDate(ligne[8]),
+                    versEntier(ligne[9]),
+                    versDecimal(ligne[10])
             ));
         } catch (NoResultException absent) {
             return Optional.empty();

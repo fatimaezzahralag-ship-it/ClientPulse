@@ -2,13 +2,10 @@ package ma.ensam.clientpulse.service.impl;
 
 import ma.ensam.clientpulse.dao.interfaces.ClientDao;
 import ma.ensam.clientpulse.dao.interfaces.ScoreClientDao;
-import ma.ensam.clientpulse.dao.interfaces.StatistiqueClientDao;
 import ma.ensam.clientpulse.domain.entity.Client;
 import ma.ensam.clientpulse.domain.entity.ScoreClient;
 import ma.ensam.clientpulse.domain.enums.NiveauRisque;
-import ma.ensam.clientpulse.domain.enums.SegmentRFM;
 import ma.ensam.clientpulse.dto.ScoreClientDto;
-import ma.ensam.clientpulse.dto.StatistiqueClientDto;
 import ma.ensam.clientpulse.exception.RessourceIntrouvableException;
 import ma.ensam.clientpulse.service.FacteurRisque;
 import ma.ensam.clientpulse.service.ResultatFacteur;
@@ -17,6 +14,7 @@ import ma.ensam.clientpulse.service.facteur.InactiviteFacteur;
 import ma.ensam.clientpulse.service.facteur.ReclamationsFacteur;
 import ma.ensam.clientpulse.service.facteur.RetardPaiementFacteur;
 import ma.ensam.clientpulse.service.interfaces.ChurnScoringService;
+import ma.ensam.clientpulse.service.interfaces.RfmService;
 import ma.ensam.clientpulse.service.mapper.ScoreClientMapper;
 import ma.ensam.clientpulse.service.scoring.NomsParametres;
 import ma.ensam.clientpulse.service.scoring.ParametresScoringReader;
@@ -27,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -47,7 +44,7 @@ public class ChurnScoringServiceImpl implements ChurnScoringService {
     private final ParametresScoringReader parametres;
     private final ScoreClientDao scoreClientDao;
     private final ClientDao clientDao;
-    private final StatistiqueClientDao statistiqueClientDao;
+    private final RfmService rfmService;
     private final ScoreClientMapper scoreClientMapper;
 
     public ChurnScoringServiceImpl(
@@ -55,13 +52,13 @@ public class ChurnScoringServiceImpl implements ChurnScoringService {
             ParametresScoringReader parametres,
             ScoreClientDao scoreClientDao,
             ClientDao clientDao,
-            StatistiqueClientDao statistiqueClientDao,
+            RfmService rfmService,
             ScoreClientMapper scoreClientMapper) {
         this.facteurs = facteurs;
         this.parametres = parametres;
         this.scoreClientDao = scoreClientDao;
         this.clientDao = clientDao;
-        this.statistiqueClientDao = statistiqueClientDao;
+        this.rfmService = rfmService;
         this.scoreClientMapper = scoreClientMapper;
     }
 
@@ -98,12 +95,9 @@ public class ChurnScoringServiceImpl implements ChurnScoringService {
         NiveauRisque niveau = determinerNiveau(
                 score, seuilMoyen, seuilEleve, seuilCritique);
 
-        StatistiqueClientDto stats = statistiqueClientDao
-                .findStatistiquesByClientId(client.getId(), jour)
-                .orElse(null);
-
-        SegmentRFM segment = determinerSegment(
-                stats, score, seuilMoyen, seuilEleve, jour);
+        // Segmentation RFM déléguée : une seule source de vérité pour le
+        // segment, partagée avec le job nocturne et les relances commerciales.
+        var segment = rfmService.segmenter(client, jour);
 
         ScoreClient resultat = new ScoreClient();
         resultat.setClient(client);
@@ -173,58 +167,4 @@ public class ChurnScoringServiceImpl implements ChurnScoringService {
         return NiveauRisque.FAIBLE;
     }
 
-    private static SegmentRFM determinerSegment(
-            StatistiqueClientDto stats,
-            BigDecimal score,
-            BigDecimal seuilMoyen,
-            BigDecimal seuilEleve,
-            LocalDate jour) {
-
-        if (stats == null) {
-            return score.compareTo(seuilEleve) >= 0
-                    ? SegmentRFM.A_RISQUE
-                    : SegmentRFM.NOUVEAU;
-        }
-
-        BigDecimal montantTotal = nul(stats.montantFacture());
-        LocalDate derniereActivite = stats.derniereActivite();
-
-        if (derniereActivite == null && montantTotal.signum() == 0) {
-            return SegmentRFM.PERDU;
-        }
-
-        if (derniereActivite != null) {
-            long jours = ChronoUnit.DAYS.between(derniereActivite, jour);
-            if (jours > 180) {
-                return SegmentRFM.HIBERNATION;
-            }
-        }
-
-        BigDecimal recent = nul(stats.montantAchats3DerniersMois());
-        BigDecimal precedent = nul(stats.montantAchats3MoisPrecedents());
-
-        if (precedent.signum() == 0 && recent.signum() > 0) {
-            return SegmentRFM.NOUVEAU;
-        }
-
-        if (score.compareTo(seuilEleve) >= 0) {
-            return SegmentRFM.A_RISQUE;
-        }
-
-        if (score.compareTo(seuilMoyen) >= 0) {
-            return SegmentRFM.A_RISQUE;
-        }
-
-        if (derniereActivite != null
-                && ChronoUnit.DAYS.between(derniereActivite, jour) <= 60
-                && recent.compareTo(precedent) >= 0) {
-            return SegmentRFM.CHAMPION;
-        }
-
-        return SegmentRFM.LOYAL;
-    }
-
-    private static BigDecimal nul(BigDecimal valeur) {
-        return valeur != null ? valeur : BigDecimal.ZERO;
-    }
 }

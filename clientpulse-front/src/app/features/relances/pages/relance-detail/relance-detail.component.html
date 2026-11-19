@@ -1,0 +1,142 @@
+<div class="page-head">
+  <div>
+    <a class="retour" routerLink="/relances">← Retour aux relances</a>
+    <h1>Relance #{{ relance()?.id ?? '—' }}</h1>
+    <p class="muted">Suivi et résultat de la relance commerciale.</p>
+  </div>
+</div>
+
+@if (erreur()) {
+  <div class="alert alert-error">{{ erreur() }}</div>
+}
+@if (message()) {
+  <div class="alert alert-success">{{ message() }}</div>
+}
+
+@if (chargement()) {
+  <div class="card etat">
+    <span class="spinner"></span>
+    Chargement de la relance…
+  </div>
+} @else if (relance(); as item) {
+
+  <div class="grille">
+    <section class="card">
+      <div class="card-header">
+        <h2>{{ item.raisonSociale }}</h2>
+        <span [class]="classeStatut(item.statut)">
+          {{ libellesStatuts[item.statut] }}
+        </span>
+      </div>
+      <div class="card-body">
+        <dl>
+          <div>
+            <dt>Code client</dt>
+            <dd class="code">{{ item.codeClient }}</dd>
+          </div>
+          <div>
+            <dt>Commercial affecté</dt>
+            <dd>{{ item.commercialNom || 'Non affecté' }}</dd>
+          </div>
+          <div>
+            <dt>Nature</dt>
+            <dd>{{ item.nature }}</dd>
+          </div>
+          <div>
+            <dt>Date d’échéance</dt>
+            <dd>{{ item.dateEcheance ? (item.dateEcheance | date: 'dd/MM/yyyy') : '—' }}</dd>
+          </div>
+          <div>
+            <dt>Créée le</dt>
+            <dd>{{ item.dateCreation | date: 'dd/MM/yyyy HH:mm' }}</dd>
+          </div>
+          <div>
+            <dt>Résultat</dt>
+            <dd>
+              @if (item.resultat) {
+                {{ libellesResultats[item.resultat] }}
+              } @else {
+                <span class="muted">En attente</span>
+              }
+            </dd>
+          </div>
+        </dl>
+
+        <h3>Motif</h3>
+        <p class="motif">{{ item.motif }}</p>
+
+        @if (item.commentaire) {
+          <h3>Commentaire</h3>
+          <p class="motif">{{ item.commentaire }}</p>
+        }
+
+        <div class="actions">
+          @if (item.statut === 'A_FAIRE') {
+            <button
+              type="button"
+              class="btn btn-primary"
+              (click)="demarrer()"
+              [disabled]="actionEnCours()">
+              Démarrer la relance
+            </button>
+          }
+          <a class="btn btn-secondary" [routerLink]="['/clients', item.clientId]">
+            Voir la fiche client
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <h2>Enregistrer un résultat</h2>
+        <span class="muted">Clôture la relance</span>
+      </div>
+      <div class="card-body">
+        @if (item.statut === 'TERMINEE') {
+          <div class="alert alert-info">
+            Cette relance est déjà terminée. Son résultat ne peut plus être modifié.
+          </div>
+        } @else {
+          <form [formGroup]="formulaire" (ngSubmit)="traiter()" class="form-grid">
+            <div class="field full">
+              <label for="resultat">Résultat <span class="required">*</span></label>
+              <select id="resultat" formControlName="resultat">
+                @for (resultat of resultats; track resultat) {
+                  <option [value]="resultat">{{ libellesResultats[resultat] }}</option>
+                }
+              </select>
+            </div>
+            <div class="field full">
+              <label for="commentaire">Commentaire</label>
+              <textarea
+                id="commentaire"
+                rows="4"
+                formControlName="commentaire"
+                placeholder="Compte rendu de l’échange…"></textarea>
+            </div>
+            <div class="full">
+              <button
+                type="submit"
+                class="btn btn-primary"
+                [disabled]="actionEnCours() || formulaire.invalid">
+                @if (actionEnCours()) {
+                  <span class="spinner"></span>
+                  Enregistrement…
+                } @else {
+                  Terminer la relance
+                }
+              </button>
+            </div>
+          </form>
+        }
+      </div>
+    </section>
+  </div>
+
+} @else {
+  <div class="card etat">
+    <strong>Relance indisponible.</strong>
+    <span class="muted">La relance demandée n’existe pas.</span>
+  </div>
+}

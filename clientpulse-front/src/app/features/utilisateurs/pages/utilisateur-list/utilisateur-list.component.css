@@ -1,0 +1,57 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.page-head h1 {
+  font-size: 24px;
+}
+
+.page-head p {
+  margin: 6px 0 0;
+  font-size: 13px;
+}
+
+.sous-titre {
+  display: block;
+  font-size: 11px;
+  color: var(--cp-slate-500);
+}
+
+.badge-role {
+  margin: 2px 4px 2px 0;
+  background: var(--cp-primary-light);
+  color: var(--cp-primary-dark);
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.th-actions {
+  text-align: right;
+}
+
+.etat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 48px 20px;
+  color: var(--cp-slate-500);
+  text-align: center;
+}
+
+@media (max-width: 620px) {
+  .page-head {
+    flex-direction: column;
+  }
+}

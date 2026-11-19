@@ -1,0 +1,95 @@
+<div class="page-head">
+  <div>
+    <a class="retour" routerLink="/analytics/clients-a-relancer">
+      ← Retour aux clients à relancer
+    </a>
+    <div class="titre-ligne">
+      <h1>{{ raisonSociale() || 'Détail du risque' }}</h1>
+      @if (codeClient()) {
+        <span class="code">{{ codeClient() }}</span>
+      }
+    </div>
+    <p class="muted">Score de churn, segment RFM et facteurs explicatifs.</p>
+  </div>
+  @if (clientId(); as identifiant) {
+    <a class="btn btn-secondary" [routerLink]="['/clients', identifiant]">
+      Voir la fiche client
+    </a>
+  }
+</div>
+
+@if (erreur()) {
+  <div class="alert alert-error">{{ erreur() }}</div>
+}
+
+@if (chargement()) {
+  <div class="card etat">
+    <span class="spinner"></span>
+    Chargement du score…
+  </div>
+} @else if (score(); as scoreCourant) {
+
+  <div class="grille">
+    <section class="card">
+      <div class="card-header">
+        <h2>Score de risque</h2>
+        <span class="muted">Calculé le {{ scoreCourant.dateCalcul | date: 'dd/MM/yyyy' }}</span>
+      </div>
+      <div class="card-body">
+        <div class="jauge">
+          <div class="jauge-valeur" [class]="'niveau-' + scoreCourant.niveau.toLowerCase()">
+            <strong>{{ scoreCourant.scoreRisque | number: '1.0-0' }}</strong>
+            <small>/ 100</small>
+          </div>
+          <div class="jauge-details">
+            <span [class]="classeNiveau(scoreCourant.niveau)">
+              Risque {{ libellesNiveaux[scoreCourant.niveau] }}
+            </span>
+            <span class="muted">
+              Segment : {{ libellesSegments[scoreCourant.segment] }}
+            </span>
+          </div>
+        </div>
+
+        <h3>Facteurs explicatifs</h3>
+        <ul class="facteurs">
+          @for (facteur of scoreCourant.facteursExplicatifs; track facteur) {
+            <li>{{ facteur }}</li>
+          } @empty {
+            <li class="muted">Aucune explication disponible.</li>
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <h2>Historique des scores</h2>
+        <span class="muted">{{ historique().length }} calcul(s) récent(s)</span>
+      </div>
+      <div class="card-body">
+        @if (historique().length > 0) {
+          <ul class="historique">
+            @for (ancien of historique(); track ancien.id) {
+              <li>
+                <span>{{ ancien.dateCalcul | date: 'dd/MM/yyyy' }}</span>
+                <strong>{{ ancien.scoreRisque | number: '1.0-0' }}</strong>
+                <span [class]="classeNiveau(ancien.niveau)">
+                  {{ libellesNiveaux[ancien.niveau] }}
+                </span>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="muted">Aucun historique disponible.</p>
+        }
+      </div>
+    </section>
+  </div>
+
+} @else {
+  <div class="card etat">
+    <strong>Score indisponible.</strong>
+    <span class="muted">Lancez un recalcul depuis le tableau de bord.</span>
+  </div>
+}

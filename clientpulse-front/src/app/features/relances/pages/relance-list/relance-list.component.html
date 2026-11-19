@@ -1,0 +1,135 @@
+<div class="page-head">
+  <div>
+    <h1>Relances commerciales</h1>
+    <p class="muted">
+      Relances générées depuis les scores de risque élevés et critiques, affectées au commercial du client.
+    </p>
+  </div>
+  <button
+    type="button"
+    class="btn btn-primary"
+    (click)="generer()"
+    [disabled]="generationEnCours()">
+    @if (generationEnCours()) {
+      <span class="spinner"></span>
+      Génération…
+    } @else {
+      Générer les relances
+    }
+  </button>
+</div>
+
+@if (erreur()) {
+  <div class="alert alert-error">{{ erreur() }}</div>
+}
+@if (message()) {
+  <div class="alert alert-success">{{ message() }}</div>
+}
+
+<section class="card filters">
+  <div class="filters-grid">
+    <div class="field">
+      <label for="statut">Statut</label>
+      <select
+        id="statut"
+        [value]="statut()"
+        (change)="changerStatut($any($event.target).value)">
+        <option value="">Tous les statuts</option>
+        @for (item of statuts; track item) {
+          <option [value]="item">{{ libellesStatuts[item] }}</option>
+        }
+      </select>
+    </div>
+  </div>
+</section>
+
+<section class="card table-card">
+  @if (chargement()) {
+    <div class="etat">
+      <span class="spinner"></span>
+      Chargement des relances…
+    </div>
+  } @else if (relances().length === 0) {
+    <div class="etat">
+      <strong>Aucune relance trouvée.</strong>
+      <span class="muted">
+        Générez les relances depuis les scores à risque pour alimenter cette liste.
+      </span>
+    </div>
+  } @else {
+    <div class="table-scroll">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Client</th>
+            <th>Commercial</th>
+            <th>Motif</th>
+            <th>Échéance</th>
+            <th>Statut</th>
+            <th>Résultat</th>
+            <th class="th-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (relance of relances(); track relance.id) {
+            <tr>
+              <td>
+                <a class="raison" [routerLink]="['/relances', relance.id]">
+                  {{ relance.raisonSociale }}
+                </a>
+                <span class="sous-titre code">{{ relance.codeClient }}</span>
+              </td>
+              <td>{{ relance.commercialNom || 'Non affecté' }}</td>
+              <td class="motif">{{ relance.motif }}</td>
+              <td>
+                {{ relance.dateEcheance ? (relance.dateEcheance | date: 'dd/MM/yyyy') : '—' }}
+              </td>
+              <td>
+                <span [class]="classeStatut(relance.statut)">
+                  {{ libellesStatuts[relance.statut] }}
+                </span>
+              </td>
+              <td>
+                @if (relance.resultat) {
+                  <span class="badge badge-active">
+                    {{ libellesResultats[relance.resultat] }}
+                  </span>
+                } @else {
+                  <span class="muted">—</span>
+                }
+              </td>
+              <td>
+                <div class="actions">
+                  <a class="btn btn-secondary btn-sm" [routerLink]="['/relances', relance.id]">
+                    Traiter
+                  </a>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <footer class="pagination">
+      <span class="muted">{{ totalElements() }} résultat(s)</span>
+      <div class="pagination-actions">
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm"
+          [disabled]="page() === 0"
+          (click)="pagePrecedente()">
+          Précédent
+        </button>
+        <span class="page-indicator">Page {{ page() + 1 }} / {{ totalPages() }}</span>
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm"
+          [disabled]="page() + 1 >= totalPages()"
+          (click)="pageSuivante()">
+          Suivant
+        </button>
+      </div>
+    </footer>
+  }
+</section>
