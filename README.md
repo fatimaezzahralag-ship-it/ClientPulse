@@ -169,14 +169,17 @@ Dans `backend/src/main/resources/application.properties` :
 
 ```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/clientpulse?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-spring.datasource.username=${DB_USERNAME:clientpulse}
-spring.datasource.password=${DB_PASSWORD}
-spring.jpa.hibernate.ddl-auto=none
+spring.datasource.username=${DB_USERNAME:root}
+spring.datasource.password=${DB_PASSWORD:}
+spring.jpa.hibernate.ddl-auto=validate
 spring.flyway.enabled=true
-app.jwt.secret=${JWT_SECRET}
 ```
 
-Définir les variables d'environnement `DB_USERNAME`, `DB_PASSWORD` et `JWT_SECRET`. **Ne jamais committer de mot de passe ni de secret.**
+Le schéma est créé par Flyway au premier démarrage (`db/migration/V1__init.sql`
+puis `V2__roles.sql`), puis Hibernate le valide sans le modifier. Le détail des
+tables et des conventions est dans [`docs/modele-donnees.md`](docs/modele-donnees.md).
+
+Définir les variables d'environnement `DB_USERNAME` et `DB_PASSWORD` hors développement local. **Ne jamais committer de mot de passe ni de secret.**
 
 ### 7.4 Lancer le backend
 
