@@ -9,6 +9,7 @@ import { Pagination } from '../../shared/pagination';
 const VIDE: Produit = { reference: '', designation: '', prixUnitaireHT: 0, marge: null, actif: true, tauxTvaId: 0 };
 
 @Component({
+  host: { class: 'p1' },
   selector: 'app-produits',
   imports: [FormsModule, CurrencyPipe, DecimalPipe, Pagination],
   template: `

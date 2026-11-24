@@ -1,0 +1,36 @@
+.p1 { --bleu: #1f4e79; --gris: #f3f5f8; --bord: #d5dbe3; --rouge: #b3261e; --vert: #1e7b46; --orange: #b26a00; color: #1c2430; display: block; }
+.p1 .entete { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; }
+.p1 h2, .p1 h3 { margin: 8px 0; }
+.p1 .carte { background: #fff; border: 1px solid var(--bord); border-radius: 8px; padding: 16px; margin: 12px 0; }
+.p1 .formulaire { display: grid; gap: 10px; }
+.p1 label { display: grid; gap: 4px; font-size: 13px; color: #44505e; }
+.p1 label.ligne { display: flex; align-items: center; gap: 8px; }
+.p1 input, .p1 select { padding: 7px 8px; border: 1px solid var(--bord); border-radius: 6px; font-size: 14px; background: #fff; }
+.p1 input:disabled, .p1 select:disabled { background: #eef1f5; }
+.p1 button, .p1 a.bouton { padding: 8px 14px; border: 0; border-radius: 6px; background: var(--bleu); color: #fff; cursor: pointer; font-size: 14px; text-decoration: none; display: inline-block; }
+.p1 button.secondaire, .p1 a.bouton.secondaire { background: #fff; color: var(--bleu); border: 1px solid var(--bleu); }
+.p1 button.danger { background: var(--rouge); }
+.p1 button:disabled { opacity: .5; cursor: default; }
+.p1 .actions { display: flex; gap: 8px; align-items: end; flex-wrap: wrap; }
+.p1 table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid var(--bord); border-radius: 8px; overflow: hidden; margin: 8px 0; }
+.p1 th, .p1 td { padding: 8px 10px; border-bottom: 1px solid var(--bord); text-align: left; font-size: 14px; }
+.p1 th { background: #e9eef4; font-size: 13px; }
+.p1 tfoot td { background: #e9eef4; font-weight: bold; }
+.p1 .droite { text-align: right; }
+.p1 .vide { text-align: center; color: #6b7785; padding: 18px; }
+.p1 tr.inactif { color: #8a94a1; }
+.p1 table.lignes input, .p1 table.lignes select { width: 100%; min-width: 70px; }
+.p1 .totaux { font-size: 15px; }
+.p1 .aide, .p1 .info { color: #5a6674; font-size: 13px; }
+.p1 .info { background: #fff6e0; border: 1px solid #f0d99a; padding: 8px 12px; border-radius: 6px; }
+.p1 .alerte { color: var(--rouge); font-weight: bold; }
+.p1 .pagination { display: flex; gap: 12px; align-items: center; justify-content: center; margin: 12px 0; font-size: 13px; }
+.p1 .badge { padding: 2px 8px; border-radius: 10px; font-size: 12px; background: #e3e8ee; }
+.p1 .badge-ACCEPTE, .p1 .badge-PAYEE, .p1 .badge-TERMINEE { background: #d7f0e0; color: var(--vert); }
+.p1 .badge-ENVOYE, .p1 .badge-EMISE, .p1 .badge-EN_COURS, .p1 .badge-PARTIELLEMENT_PAYEE { background: #dce9f8; color: var(--bleu); }
+.p1 .badge-EN_RETARD, .p1 .badge-REFUSE, .p1 .badge-ANNULEE, .p1 .badge-EXPIRE { background: #f9dcda; color: var(--rouge); }
+.p1 .badge-A_FAIRE { background: #fdebc8; color: var(--orange); }
+.p1 .notifs { position: fixed; top: 12px; right: 12px; display: grid; gap: 8px; z-index: 10; max-width: 420px; }
+.p1 .notif { background: var(--vert); color: #fff; padding: 10px 14px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+.p1 .notif.erreur { background: var(--rouge); }
+app-notifications.p1 .notifs { position: fixed; }

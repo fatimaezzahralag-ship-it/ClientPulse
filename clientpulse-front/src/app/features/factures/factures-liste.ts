@@ -10,6 +10,7 @@ import { StatutBadge } from '../../shared/statut-badge';
 const STATUTS: StatutFacture[] = ['BROUILLON', 'EMISE', 'PARTIELLEMENT_PAYEE', 'PAYEE', 'EN_RETARD', 'ANNULEE'];
 
 @Component({
+  host: { class: 'p1' },
   selector: 'app-factures-liste',
   imports: [RouterLink, FormsModule, CurrencyPipe, DatePipe, Pagination, StatutBadge],
   template: `

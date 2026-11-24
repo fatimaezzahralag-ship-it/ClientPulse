@@ -5,6 +5,7 @@ import { roleGuard } from './core/auth/role.guard';
 
 const ROLES_ANALYTICS = ['ADMIN', 'MANAGER', 'ANALYSTE'];
 const ROLES_RELANCES = ['ADMIN', 'MANAGER', 'COMMERCIAL'];
+const ROLES_FACTURATION = ['ADMIN', 'MANAGER', 'COMMERCIAL', 'COMPTABLE'];
 
 export const routes: Routes = [
   {
@@ -54,6 +55,56 @@ export const routes: Routes = [
           import(
             './features/clients/pages/client-form/client-form.component'
           ).then((m) => m.ClientFormComponent)
+      },
+
+      // ------------------------------------------------------------ P1 : facturation
+      {
+        path: 'produits',
+        canActivate: [roleGuard(ROLES_FACTURATION)],
+        loadComponent: () =>
+          import('./features/produits/produits').then((m) => m.Produits)
+      },
+      {
+        path: 'devis',
+        canActivate: [roleGuard(ROLES_FACTURATION)],
+        loadComponent: () =>
+          import('./features/devis/devis-liste').then((m) => m.DevisListe)
+      },
+      {
+        path: 'devis/nouveau',
+        canActivate: [roleGuard(ROLES_FACTURATION)],
+        loadComponent: () =>
+          import('./features/devis/devis-form').then((m) => m.DevisForm)
+      },
+      {
+        path: 'devis/:id',
+        canActivate: [roleGuard(ROLES_FACTURATION)],
+        loadComponent: () =>
+          import('./features/devis/devis-form').then((m) => m.DevisForm)
+      },
+      {
+        path: 'factures',
+        canActivate: [roleGuard(ROLES_FACTURATION)],
+        loadComponent: () =>
+          import('./features/factures/factures-liste').then(
+            (m) => m.FacturesListe
+          )
+      },
+      {
+        path: 'factures/:id',
+        canActivate: [roleGuard(ROLES_FACTURATION)],
+        loadComponent: () =>
+          import('./features/factures/facture-detail').then(
+            (m) => m.FactureDetail
+          )
+      },
+      {
+        path: 'balance-agee',
+        canActivate: [roleGuard(ROLES_FACTURATION)],
+        loadComponent: () =>
+          import('./features/balance-agee/balance-agee').then(
+            (m) => m.BalanceAgeeEcran
+          )
       },
 
       // ------------------------------------------------------------ J4 : analytics
