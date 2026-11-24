@@ -1,0 +1,81 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.periodes {
+  display: flex;
+  gap: 4px;
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px 20px;
+}
+
+.kpi-label {
+  font-size: 12px;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--cp-slate-500);
+}
+
+.kpi-valeur {
+  font-size: 24px;
+  line-height: 1.15;
+  color: var(--cp-primary-dark);
+}
+
+.kpi-alerte .kpi-valeur {
+  color: var(--cp-danger);
+}
+
+.kpi-note {
+  font-size: 12px;
+  color: var(--cp-slate-500);
+}
+
+.grille {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.card-header h2 {
+  font-size: 16px;
+}
+
+.card-header .muted {
+  font-size: 12px;
+}
+
+.graphique {
+  height: 300px;
+}
+
+.num {
+  text-align: right;
+}
+
+@media (max-width: 1100px) {
+  .kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 800px) {
+  .kpis,
+  .grille {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

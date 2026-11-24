@@ -1,0 +1,58 @@
+<app-page-header
+  titre="Paramètres"
+  sousTitre="Délais de relance, poids et seuils du scoring. Les changements sont pris en compte au prochain calcul." />
+
+<app-alert type="error" [message]="erreur()" />
+<app-alert type="success" [message]="succes()" />
+
+@if (chargement()) {
+  <app-loading-state message="Chargement des paramètres…" />
+} @else {
+  @for (groupe of groupes(); track groupe.titre) {
+    <section class="card">
+      <div class="card-header">
+        <h2>{{ groupe.titre }}</h2>
+        @if (groupe.description) {
+          <span class="muted">{{ groupe.description }}</span>
+        }
+      </div>
+      <div class="card-body">
+        @if (groupe.titre === 'Poids du score de risque') {
+          <p class="somme" [class.somme-ko]="sommePoids() < 0.999 || sommePoids() > 1.001">
+            Somme des poids : <strong>{{ sommePoids().toFixed(2) }}</strong>
+            @if (sommePoids() < 0.999 || sommePoids() > 1.001) { (doit faire 1,00) }
+          </p>
+        }
+        <table class="table">
+          <tbody>
+            @for (ligne of groupe.lignes; track ligne.id) {
+              <tr>
+                <td class="libelle">
+                  <strong>{{ ligne.libelle }}</strong>
+                  @if (ligne.aide) { <small class="muted">{{ ligne.aide }}</small> }
+                </td>
+                <td class="saisie">
+                  <input
+                    type="text"
+                    inputmode="decimal"
+                    [attr.aria-label]="ligne.libelle"
+                    [class.invalide]="saisieInvalide(ligne)"
+                    [(ngModel)]="ligne.saisie" />
+                </td>
+                <td class="action">
+                  <button
+                    type="button"
+                    class="btn btn-primary btn-sm"
+                    [disabled]="!modifie(ligne) || saisieInvalide(ligne) || ligne.enregistrement"
+                    (click)="enregistrer(ligne)">
+                    {{ ligne.enregistrement ? '…' : 'Enregistrer' }}
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+}

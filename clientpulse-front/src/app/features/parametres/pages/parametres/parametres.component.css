@@ -1,0 +1,61 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+}
+
+.card-header h2 {
+  font-size: 16px;
+}
+
+.card-header .muted {
+  font-size: 12px;
+}
+
+.libelle {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.libelle small {
+  font-size: 12px;
+}
+
+.saisie {
+  width: 140px;
+}
+
+.saisie input {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--cp-slate-200);
+  border-radius: 6px;
+  font: inherit;
+  text-align: right;
+}
+
+.saisie input.invalide {
+  border-color: var(--cp-danger);
+}
+
+.action {
+  width: 120px;
+  text-align: right;
+}
+
+.somme {
+  margin: 0 0 12px;
+  font-size: 13px;
+}
+
+.somme-ko {
+  color: var(--cp-danger);
+}

@@ -100,6 +100,32 @@ export const routes: Routes = [
           ).then((m) => m.RelanceDetailComponent)
       },
 
+      // ------------------------------------------------------------ Personne 3 : tableau de bord, import, paramètres
+      {
+        path: 'dashboard',
+        canActivate: [roleGuard(ROLES_ANALYTICS)],
+        loadComponent: () =>
+          import(
+            './features/dashboard/pages/kpi-dashboard/kpi-dashboard.component'
+          ).then((m) => m.KpiDashboardComponent)
+      },
+      {
+        path: 'import',
+        canActivate: [roleGuard(['ADMIN'])],
+        loadComponent: () =>
+          import(
+            './features/import/pages/import-csv/import-csv.component'
+          ).then((m) => m.ImportCsvComponent)
+      },
+      {
+        path: 'parametres',
+        canActivate: [roleGuard(['ADMIN'])],
+        loadComponent: () =>
+          import(
+            './features/parametres/pages/parametres/parametres.component'
+          ).then((m) => m.ParametresComponent)
+      },
+
       // ------------------------------------------------------------ J4 : utilisateurs
       {
         path: 'utilisateurs',

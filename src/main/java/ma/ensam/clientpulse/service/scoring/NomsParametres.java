@@ -56,6 +56,14 @@ public final class NomsParametres {
             "RFM_HIBERNATION_JOURS";
     public static final String RFM_PERDU_JOURS = "RFM_PERDU_JOURS";
 
+    // Délais des relances de paiement (V8). N1 = jours AVANT l'échéance (rappel
+    // préventif), N2 à N5 = jours APRÈS l'échéance. Toujours positifs en base.
+    public static final String DELAI_RELANCE_N1 = "DELAI_RELANCE_N1";
+    public static final String DELAI_RELANCE_N2 = "DELAI_RELANCE_N2";
+    public static final String DELAI_RELANCE_N3 = "DELAI_RELANCE_N3";
+    public static final String DELAI_RELANCE_N4 = "DELAI_RELANCE_N4";
+    public static final String DELAI_RELANCE_N5 = "DELAI_RELANCE_N5";
+
     private NomsParametres() {
     }
 }

@@ -133,6 +133,14 @@ public class ParametreScoringServiceImpl
         ordreDecroissant(v, "seuils monétaires RFM",
                 NomsParametres.RFM_MONETAIRE_CHAMPION,
                 NomsParametres.RFM_MONETAIRE_LOYAL);
+
+        // Délais des relances de paiement : J+3 < J+15 < J+30 < J+45 (le délai
+        // préventif N1 est un nombre de jours AVANT l'échéance, sans ordre à respecter).
+        ordreCroissant(v, "délais de relance de paiement",
+                NomsParametres.DELAI_RELANCE_N2,
+                NomsParametres.DELAI_RELANCE_N3,
+                NomsParametres.DELAI_RELANCE_N4,
+                NomsParametres.DELAI_RELANCE_N5);
     }
 
     private static void ordreCroissant(

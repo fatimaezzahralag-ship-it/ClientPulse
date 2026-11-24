@@ -1,0 +1,65 @@
+# =============================================================================
+# ClientPulse : lancement complet
+#
+#     cp .env.example .env
+#     docker compose up --build
+#
+#   Application : http://localhost:4200        (comptes : voir README, mot de passe de démo Demo@12345)
+#   Swagger UI  : http://localhost:8080/swagger-ui.html  (profil dev uniquement)
+#   phpMyAdmin  : http://localhost:8081        (docker compose --profile outils up)
+# =============================================================================
+services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-clientpulse}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-clientpulse}
+      TZ: Africa/Casablanca
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_ROOT_PASSWORD:-clientpulse}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  backend:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/${DB_NAME:-clientpulse}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_ROOT_PASSWORD:-clientpulse}
+      # dev : charge le jeu de données de démonstration (V100) et active Swagger UI.
+      # prod : base vide, uniquement les comptes d'amorçage.
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
+      APP_SEED_ADMIN_PASSWORD: ${APP_SEED_ADMIN_PASSWORD:-Admin@12345}
+      APP_SEED_COMMERCIAL_PASSWORD: ${APP_SEED_COMMERCIAL_PASSWORD:-Commercial@12345}
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build: ./clientpulse-front
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "4200:80"
+
+  phpmyadmin:
+    image: phpmyadmin:5
+    profiles: ["outils"]
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+    ports:
+      - "8081:80"
+
+volumes:
+  mysql-data:
