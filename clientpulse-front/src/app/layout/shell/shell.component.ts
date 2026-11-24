@@ -2,10 +2,11 @@ import { Component, computed, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 import { AuthService } from '../../core/auth/auth.service';
+import { Notifications } from '../../shared/notifications';
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, Notifications],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.css'
 })
@@ -31,6 +32,12 @@ export class ShellComponent {
   protected readonly peutVoirAnalytics = computed(() =>
     this.roles().some((role) =>
       ['ADMIN', 'MANAGER', 'ANALYSTE'].includes(role)
+    )
+  );
+
+  protected readonly peutVoirFacturation = computed(() =>
+    this.roles().some((role) =>
+      ['ADMIN', 'MANAGER', 'COMMERCIAL', 'COMPTABLE'].includes(role)
     )
   );
 
