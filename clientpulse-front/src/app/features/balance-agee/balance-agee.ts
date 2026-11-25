@@ -5,6 +5,7 @@ import { FactureApi } from '../../core/api.services';
 import { BalanceAgee } from '../../core/models';
 
 @Component({
+  host: { class: 'p1' },
   selector: 'app-balance-agee',
   imports: [FormsModule, CurrencyPipe],
   template: `

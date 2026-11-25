@@ -9,6 +9,7 @@ import { NotificationService } from '../../core/notification.service';
 const LIGNE_VIDE = (): Ligne => ({ produitId: null, designation: '', quantite: 1, prixUnitaireHT: 0, remise: 0, tauxTVA: 20 });
 
 @Component({
+  host: { class: 'p1' },
   selector: 'app-devis-form',
   imports: [FormsModule, RouterLink, CurrencyPipe],
   template: `

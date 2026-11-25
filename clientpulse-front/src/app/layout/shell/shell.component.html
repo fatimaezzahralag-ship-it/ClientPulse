@@ -18,6 +18,37 @@
         Clients
       </a>
 
+      @if (peutVoirFacturation()) {
+        <a
+          routerLink="/produits"
+          routerLinkActive="active"
+          class="nav-link">
+          <span class="nav-icon" aria-hidden="true">▤</span>
+          Produits
+        </a>
+        <a
+          routerLink="/devis"
+          routerLinkActive="active"
+          class="nav-link">
+          <span class="nav-icon" aria-hidden="true">✎</span>
+          Devis
+        </a>
+        <a
+          routerLink="/factures"
+          routerLinkActive="active"
+          class="nav-link">
+          <span class="nav-icon" aria-hidden="true">▣</span>
+          Factures
+        </a>
+        <a
+          routerLink="/balance-agee"
+          routerLinkActive="active"
+          class="nav-link">
+          <span class="nav-icon" aria-hidden="true">≡</span>
+          Balance âgée
+        </a>
+      }
+
       @if (peutVoirAnalytics()) {
         <a
           routerLink="/dashboard"
@@ -98,5 +129,6 @@
     <main class="content">
       <router-outlet />
     </main>
+    <app-notifications />
   </div>
 </div>

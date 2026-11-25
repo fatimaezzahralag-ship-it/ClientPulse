@@ -8,6 +8,7 @@ import { Pagination } from '../../shared/pagination';
 import { StatutBadge } from '../../shared/statut-badge';
 
 @Component({
+  host: { class: 'p1' },
   selector: 'app-devis-liste',
   imports: [RouterLink, CurrencyPipe, DatePipe, Pagination, StatutBadge],
   template: `

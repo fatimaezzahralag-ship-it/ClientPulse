@@ -8,6 +8,7 @@ import { NotificationService } from '../../core/notification.service';
 import { StatutBadge } from '../../shared/statut-badge';
 
 @Component({
+  host: { class: 'p1' },
   selector: 'app-facture-detail',
   imports: [RouterLink, FormsModule, CurrencyPipe, DatePipe, StatutBadge],
   template: `

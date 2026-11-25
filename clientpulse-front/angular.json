@@ -57,7 +57,8 @@
               }
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.css",
+              "src/styles-p1.css"
             ]
           },
           "configurations": {
