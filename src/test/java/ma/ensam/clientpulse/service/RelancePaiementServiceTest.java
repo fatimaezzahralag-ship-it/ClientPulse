@@ -106,4 +106,19 @@ class RelancePaiementServiceTest {
         assertThat(bilan.relancesCreees()).isEqualTo(1);
         assertThat(facture.getStatut()).isEqualTo(StatutFacture.EN_RETARD);
     }
+
+    @Test
+    void lesDelaisParametresParLAdministrateurSontPrisEnCompte() {
+        // Rappel préventif 7 jours avant l'échéance au lieu de 3
+        var parametres = new ma.ensam.clientpulse.service.scoring.ParametreScoringDaoStub()
+                .avec(ma.ensam.clientpulse.service.scoring.NomsParametres.DELAI_RELANCE_N1, "7");
+        FacturationServiceImpl facturation = new FacturationServiceImpl(factureDao, new DevisDaoMemoire(),
+                new CalculateurMontantsImpl(), (type, jour) -> "N/A", new FactureMapper(new PaiementMapper()));
+        var serviceParametre = new RelancePaiementServiceImpl(factureDao, relanceDao, facturation,
+                new ma.ensam.clientpulse.service.impl.DelaisRelance(parametres));
+
+        assertThat(serviceParametre.genererRelances(ECHEANCE.minusDays(8))).isEqualTo(0);
+        assertThat(serviceParametre.genererRelances(ECHEANCE.minusDays(7))).isEqualTo(1);
+        assertThat(relanceDao.toutes().get(0).getMotif()).contains("J-7");
+    }
 }

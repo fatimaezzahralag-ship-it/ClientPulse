@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Vérifie le socle de persistance sur un vrai MySQL :
  *
- *  1. Flyway applique V1__init.sql puis V2__roles.sql ;
+ *  1. Flyway applique les migrations V1 à V8 (V100, données de démo, n'est chargée qu'en profil dev) ;
  *  2. Hibernate (ddl-auto=validate) accepte le schéma créé par Flyway ;
  *  3. les rôles viennent bien de la migration et non du DataInitializer ;
  *  4. les données d'amorçage (admin + commercial) sont créées au-dessus.
@@ -48,7 +48,8 @@ class FlywaySchemaTest {
             "scores_client",
             "relances",
             "taux_tva",
-            "produit"
+            "produit",
+            "journal_import"
     );
 
     @Autowired
@@ -62,7 +63,7 @@ class FlywaySchemaTest {
                 String.class
         );
 
-        assertThat(versions).containsExactly("1", "2", "4", "5", "6");
+        assertThat(versions).containsExactly("1", "2", "4", "5", "6", "7", "8");
     }
 
     @Test
@@ -77,13 +78,27 @@ class FlywaySchemaTest {
     }
 
     @Test
+    void les_delais_de_relance_par_defaut_sont_inseres_par_la_migration_v8() {
+        List<String> delais = jdbc.queryForList(
+                "SELECT CONCAT(nom, '=', CAST(valeur AS UNSIGNED)) FROM parametres_scoring "
+                        + "WHERE nom LIKE 'DELAI_RELANCE_N%' ORDER BY nom",
+                String.class
+        );
+
+        assertThat(delais).containsExactly(
+                "DELAI_RELANCE_N1=3", "DELAI_RELANCE_N2=3", "DELAI_RELANCE_N3=15",
+                "DELAI_RELANCE_N4=30", "DELAI_RELANCE_N5=45"
+        );
+    }
+
+    @Test
     void les_roles_sont_inseres_par_la_migration_v2() {
         List<String> roles = jdbc.queryForList(
                 "SELECT nom FROM roles ORDER BY nom",
                 String.class
         );
 
-        assertThat(roles).containsExactly(
+        assertThat(roles).containsExactlyInAnyOrder(
                 "ADMIN", "ANALYSTE", "COMMERCIAL", "COMPTABLE", "MANAGER"
         );
     }

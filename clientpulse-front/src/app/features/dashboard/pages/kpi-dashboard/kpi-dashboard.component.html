@@ -1,0 +1,147 @@
+<app-page-header
+  titre="Tableau de bord"
+  [sousTitre]="donnees() ? 'Situation au ' + donnees()!.dateReference + ' · période de ' + periode() + ' mois' : 'Trésorerie, fidélisation et relances'">
+  <div class="periodes" role="group" aria-label="Période">
+    @for (p of periodes; track p.mois) {
+      <button
+        type="button"
+        class="btn btn-sm"
+        [class.btn-primary]="periode() === p.mois"
+        [class.btn-secondary]="periode() !== p.mois"
+        (click)="changerPeriode(p.mois)">
+        {{ p.libelle }}
+      </button>
+    }
+  </div>
+  <button type="button" class="btn btn-secondary btn-sm" (click)="exporter()" [disabled]="exportEnCours() || !donnees()">
+    {{ exportEnCours() ? 'Export…' : 'Exporter en CSV' }}
+  </button>
+  <a class="btn btn-secondary btn-sm" routerLink="/analytics">Scoring de risque</a>
+</app-page-header>
+
+<app-alert type="error" [message]="erreur()" />
+
+@if (chargement() && !donnees()) {
+  <app-loading-state message="Calcul des indicateurs…" />
+} @else if (donnees(); as d) {
+
+  <section class="kpis" aria-label="Trésorerie">
+    <article class="card kpi">
+      <span class="kpi-label">Chiffre d’affaires HT</span>
+      <strong class="kpi-valeur">{{ d.chiffreAffairesHt | mad }}</strong>
+      <span class="kpi-note">Facturé TTC : {{ d.totalFactureTtc | mad }}</span>
+    </article>
+    <article class="card kpi">
+      <span class="kpi-label">Encaissé</span>
+      <strong class="kpi-valeur">{{ d.totalEncaisse | mad }}</strong>
+      <span class="kpi-note">Recouvrement des échéances : {{ pct(d.tauxRecouvrement) }}</span>
+    </article>
+    <article class="card kpi" [class.kpi-alerte]="d.encoursEchu > 0">
+      <span class="kpi-label">Encours clients</span>
+      <strong class="kpi-valeur">{{ d.encours | mad }}</strong>
+      <span class="kpi-note">Dont échu : {{ d.encoursEchu | mad }}</span>
+    </article>
+    <article class="card kpi">
+      <span class="kpi-label">DSO</span>
+      <strong class="kpi-valeur">{{ nombre(d.dso) }} j</strong>
+      <span class="kpi-note">Délai moyen entre émission et paiement complet</span>
+    </article>
+  </section>
+
+  <section class="kpis" aria-label="Fidélisation">
+    <article class="card kpi">
+      <span class="kpi-label">Taux de rétention</span>
+      <strong class="kpi-valeur">{{ pct(d.tauxRetention) }}</strong>
+      <span class="kpi-note">
+        {{ d.clientsDebutPeriode }} clients au départ, {{ d.clientsFinPeriode }} à ce jour, {{ d.nouveauxClients }} nouveaux
+      </span>
+    </article>
+    <article class="card kpi">
+      <span class="kpi-label">Valeur vie client (CLV)</span>
+      <strong class="kpi-valeur">{{ d.clv | mad }}</strong>
+      <span class="kpi-note">
+        Marge {{ d.margeMoyenneParFacture | mad }} × {{ nombre(d.facturesParClientParAn, 2) }} factures/an × {{ nombre(d.dureeVieAnnees, 1) }} ans
+      </span>
+    </article>
+    <article class="card kpi">
+      <span class="kpi-label">Churn annuel</span>
+      <strong class="kpi-valeur">{{ pct(d.tauxChurnAnnuel) }}</strong>
+      <span class="kpi-note">Part des clients perdus sur 12 mois</span>
+    </article>
+    <article class="card kpi">
+      <span class="kpi-label">Succès des relances</span>
+      <strong class="kpi-valeur">{{ pct(d.tauxSuccesRelances) }}</strong>
+      <span class="kpi-note">{{ d.relancesReussies }} suivies d’un paiement ou d’une commande sur {{ d.relancesEffectuees }}</span>
+    </article>
+  </section>
+
+  <div class="grille">
+    <section class="card">
+      <div class="card-header"><h2>Facturé et encaissé par mois</h2></div>
+      <div class="card-body graphique">
+        <app-chart type="bar" [data]="graphiqueMensuel()" [options]="optionsBarres" />
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <h2>Encours par ancienneté</h2>
+        <span class="muted">Balance âgée</span>
+      </div>
+      <div class="card-body graphique">
+        @if (d.encours > 0) {
+          <app-chart type="doughnut" [data]="graphiqueEncours()" [options]="optionsAnneaux" />
+        } @else {
+          <app-empty-state titre="Aucune créance en cours" />
+        }
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header"><h2>Meilleurs clients</h2><span class="muted">CA HT sur la période</span></div>
+      <div class="card-body graphique">
+        @if (d.meilleursClients.length > 0) {
+          <app-chart type="bar" [data]="graphiqueClients()" [options]="optionsBarresHorizontales" />
+        } @else {
+          <app-empty-state titre="Aucune facture sur la période" />
+        }
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <h2>Segments RFM</h2>
+        <span class="muted">{{ totalSegments() }} client(s)</span>
+      </div>
+      <div class="card-body graphique">
+        @if (totalSegments() > 0) {
+          <app-chart type="doughnut" [data]="graphiqueSegments()" [options]="optionsAnneaux" />
+        } @else {
+          <app-empty-state titre="Aucun segment calculé" detail="Lancez un recalcul depuis la page Scoring de risque." />
+        }
+      </div>
+    </section>
+  </div>
+
+  <section class="card">
+    <div class="card-header"><h2>Détail de l’encours</h2></div>
+    <div class="card-body">
+      <table class="table">
+        <thead>
+          <tr><th>Tranche de retard</th><th class="num">Montant</th><th class="num">Part de l’encours</th></tr>
+        </thead>
+        <tbody>
+          @for (t of d.encoursParTranche; track t.tranche) {
+            <tr>
+              <td>{{ t.tranche }}</td>
+              <td class="num">{{ t.montant | mad }}</td>
+              <td class="num">{{ pct(t.pourcentage) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+} @else if (!erreur()) {
+  <app-empty-state titre="Aucun indicateur disponible" />
+}

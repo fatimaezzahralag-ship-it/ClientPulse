@@ -51,6 +51,14 @@
 
       @if (peutVoirAnalytics()) {
         <a
+          routerLink="/dashboard"
+          routerLinkActive="active"
+          class="nav-link">
+          <span class="nav-icon" aria-hidden="true">◈</span>
+          Tableau de bord
+        </a>
+
+        <a
           routerLink="/analytics"
           routerLinkActive="active"
           class="nav-link">
@@ -76,6 +84,22 @@
           class="nav-link">
           <span class="nav-icon" aria-hidden="true">◍</span>
           Utilisateurs
+        </a>
+
+        <a
+          routerLink="/import"
+          routerLinkActive="active"
+          class="nav-link">
+          <span class="nav-icon" aria-hidden="true">⇪</span>
+          Import CSV
+        </a>
+
+        <a
+          routerLink="/parametres"
+          routerLinkActive="active"
+          class="nav-link">
+          <span class="nav-icon" aria-hidden="true">⚙</span>
+          Paramètres
         </a>
       }
     </nav>

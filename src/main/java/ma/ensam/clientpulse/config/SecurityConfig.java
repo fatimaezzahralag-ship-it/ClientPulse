@@ -89,6 +89,24 @@ public class SecurityConfig {
                                 "/api/parametres/**"
                         ).hasAnyRole("ADMIN", "MANAGER", "ANALYSTE")
 
+                        // Import CSV : ADMIN uniquement (cas d'utilisation « Importer des données CSV »).
+                        .requestMatchers("/api/import/**")
+                        .hasRole("ADMIN")
+
+                        // Tableau de bord financier et son export CSV.
+                        .requestMatchers("/api/dashboard/**")
+                        .hasAnyRole("ADMIN", "MANAGER", "ANALYSTE")
+
+                        // PDF : le comptable édite les factures, les commerciaux n'impriment que leurs devis.
+                        .requestMatchers(HttpMethod.GET, "/api/factures/*/pdf")
+                        .hasAnyRole("ADMIN", "MANAGER", "COMPTABLE")
+                        .requestMatchers(HttpMethod.GET, "/api/devis/*/pdf")
+                        .hasAnyRole("ADMIN", "MANAGER", "COMMERCIAL", "COMPTABLE")
+
+                        // Documentation OpenAPI : les routes n'existent qu'en profil dev (springdoc désactivé ailleurs).
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+                        .permitAll()
+
                         // Les relances restent accessibles aux COMMERCIAUX.
                         .anyRequest().authenticated()
                 )

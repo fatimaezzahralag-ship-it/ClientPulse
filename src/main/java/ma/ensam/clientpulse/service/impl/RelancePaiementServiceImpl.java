@@ -1,6 +1,5 @@
 package ma.ensam.clientpulse.service.impl;
 
-import lombok.RequiredArgsConstructor;
 import ma.ensam.clientpulse.dao.interfaces.FactureDao;
 import ma.ensam.clientpulse.dao.interfaces.RelanceDao;
 import ma.ensam.clientpulse.domain.entity.Facture;
@@ -10,6 +9,7 @@ import ma.ensam.clientpulse.domain.enums.StatutRelance;
 import ma.ensam.clientpulse.dto.ResultatTraitement;
 import ma.ensam.clientpulse.service.interfaces.FacturationService;
 import ma.ensam.clientpulse.service.interfaces.RelancePaiementService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,23 +18,43 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 @Service
-@RequiredArgsConstructor
 public class RelancePaiementServiceImpl implements RelancePaiementService {
 
     private final FactureDao factureDao;
     private final RelanceDao relanceDao;
     private final FacturationService facturationService;
+    private final DelaisRelance delais;
+
+    /** Constructeur historique : délais par défaut (J-3, J+3, J+15, J+30, J+45). Utilisé par les tests. */
+    public RelancePaiementServiceImpl(FactureDao factureDao,
+                                      RelanceDao relanceDao,
+                                      FacturationService facturationService) {
+        this(factureDao, relanceDao, facturationService, DelaisRelance.parDefaut());
+    }
+
+    /** Constructeur utilisé par Spring : les délais viennent de la table des paramètres. */
+    @Autowired
+    public RelancePaiementServiceImpl(FactureDao factureDao,
+                                      RelanceDao relanceDao,
+                                      FacturationService facturationService,
+                                      DelaisRelance delais) {
+        this.factureDao = factureDao;
+        this.relanceDao = relanceDao;
+        this.facturationService = facturationService;
+        this.delais = delais;
+    }
 
     @Override
     @Transactional
     public int genererRelances(LocalDate jour) {
         int creees = 0;
+        int[] decalages = delais.decalages();   // lus une seule fois par passage
         for (Facture facture : factureDao.findOuvertes()) {
             if (facture.getDateEcheance() == null || facture.getResteAPayer().signum() <= 0) {
                 continue;   // rien à relancer
             }
             long joursApresEcheance = ChronoUnit.DAYS.between(facture.getDateEcheance(), jour);
-            int niveau = NiveauxRelance.niveauAtteint(joursApresEcheance);
+            int niveau = NiveauxRelance.niveauAtteint(joursApresEcheance, decalages);
             if (niveau == 0) {
                 continue;   // l'échéance est encore trop loin
             }
@@ -42,7 +62,7 @@ public class RelancePaiementServiceImpl implements RelancePaiementService {
             if (relanceDao.existePourFactureEtNiveau(facture.getId(), NatureRelance.PAIEMENT, niveau)) {
                 continue;
             }
-            relanceDao.save(construire(facture, niveau, jour));
+            relanceDao.save(construire(facture, niveau, jour, decalages));
             creees++;
         }
         return creees;
@@ -59,7 +79,7 @@ public class RelancePaiementServiceImpl implements RelancePaiementService {
         return new ResultatTraitement(enRetard, relances);
     }
 
-    private Relance construire(Facture facture, int niveau, LocalDate jour) {
+    private Relance construire(Facture facture, int niveau, LocalDate jour, int[] decalages) {
         Relance relance = new Relance();
         relance.setNature(NatureRelance.PAIEMENT);
         relance.setStatut(StatutRelance.A_FAIRE);
@@ -69,7 +89,7 @@ public class RelancePaiementServiceImpl implements RelancePaiementService {
         relance.setFacture(facture);
         relance.setNiveau(niveau);
         relance.setDateEcheance(jour);
-        relance.setMotif("Relance " + NiveauxRelance.libelle(niveau) + " : facture " + facture.getNumero()
+        relance.setMotif("Relance " + NiveauxRelance.libelle(niveau, decalages) + " : facture " + facture.getNumero()
                 + ", reste à payer " + facture.getResteAPayer().setScale(2, RoundingMode.HALF_UP).toPlainString()
                 + " MAD, échéance le " + facture.getDateEcheance() + ".");
         return relance;
